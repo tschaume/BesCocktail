@@ -2,11 +2,7 @@
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 
 #include "StRoot/BesCocktail/CmdLine.h"
-
-void printInfo(int n) {
-  if ( n > 0 && !(n%100000) ) std::cout << n/1000 << "k" << std::endl;
-  else if ( !(n%10000) ) std::cout << ".";
-}
+#include "StRoot/BesCocktail/Utils.h"
 
 int main(int argc, char **argv) {
   try {
@@ -17,7 +13,7 @@ int main(int argc, char **argv) {
 
     // start work
     for ( int n = 0; n < clopts->ndecays; ++n ) {
-      printInfo(n);
+      Utils::printInfo(n);
       //Double_t pt = fPt->GetRandom(ptmin,ptmax);
     }
   }
