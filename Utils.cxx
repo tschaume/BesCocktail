@@ -5,9 +5,9 @@
 
 void Utils::printInfo(int n) {
   if ( n > 0 && !(n%100000) ) std::cout << n/1000 << "k" << std::endl;
-  else if ( !(n%10000) ) std::cout << ".";
+  else if ( !(n%10000) ) std::cout << "." << std::flush;
 }
 
 bool Utils::checkParticle(const std::string& p) {
-  return Constants::mMass.count(p);
+  return Constants::mParCont.count(p);
 }

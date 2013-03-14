@@ -55,7 +55,6 @@ bool CmdLine::parse(int argc, char *argv[]) {
 }
 
 void CmdLine::print() {
-  cout << "particle: " << particle << endl;
-  cout << "#decays : " << ndecays << endl;
-  cout << "mass    : " << Constants::mMass[particle] << endl;
+  cout << "#decays   : " << ndecays << endl;
+  Constants::mParCont[particle].print();
 }
