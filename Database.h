@@ -2,60 +2,92 @@
 #ifndef STROOT_BESCOCKTAIL_DATABASE_H_
 #define STROOT_BESCOCKTAIL_DATABASE_H_
 
+#include <cstdlib>
+#include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 #include <yaml-cpp/yaml.h>
+#include <boost/foreach.hpp>
+#include <boost/range/adaptor/map.hpp>
 
 using std::string;
 using std::vector;
+using std::map;
+using std::cout;
+using std::endl;
 
-struct HgdPars { 
-  double A, a, b, p0, n; 
-  HgdPars(double a1, double a2, double a3, double a4, double a5)
-    : A(a1), a(a2), b(a3), p0(a4), n(a5) {}
-  bool operator==(const HgdPars& hp) const {
-    return A == hp.A && a == hp.a && b == hp.b && p0 == hp.p0 && n == hp.n;
+namespace ad = boost::adaptors;
+
+struct Particle {
+  map<string, double> m; // mass in GeV/c2
+  map<double, vector<double> > mhp; // energy, [A, a, b, p0, n]
+  void rndInit() { // for testing purposes only
+    m["mass"] = rand() % 10;
+    for ( int i = 0; i < 3; ++i ) {
+      vector<double> v;
+      for ( int j = 0; j < 5; ++j ) v.push_back(rand()%1000);
+      mhp[rand()%100+1] = v;
+    }
+  }
+  void print() {
+    cout << "mass: " << m["mass"] << endl;
+    BOOST_FOREACH(double e, mhp | ad::map_keys) {
+      cout << e << ": [";
+      BOOST_FOREACH(double p, mhp[e]) { cout << " " << p; }
+      cout << " ]" << endl;
+    }
   }
 };
 
-struct Particle {
-  string name;
-  double m;
-  vector<HgdPars> hp; // for each energy
+namespace YAML {
+  template<> struct convert<Particle> {
+    static Node encode(const Particle& prt) {
+      Node node;
+      node.push_back(prt.m);
+      node.push_back(prt.mhp);
+      return node;
+    }
+    static bool decode(const Node& node, Particle& prt) {
+      if (!node.IsSequence()) return false;
+      prt.m = node[0].as< map<string, double> >();
+      prt.mhp = node[1].as< map< double, vector<double> > >();
+      return true;
+    }
+  };
+}
+
+struct Database {
+  map<string, Particle> mDb;
+  void print() {
+    BOOST_FOREACH(string s, mDb | ad::map_keys) {
+      cout << s << endl; mDb[s].print();
+    }
+  }
 };
 
 namespace YAML {
-  template<>
-    struct convert<HgdPars> {
-      static Node encode(const HgdPars& hp) {
-        Node node;
-        node.push_back(hp.A);
-        node.push_back(hp.a);
-        node.push_back(hp.b);
-        node.push_back(hp.p0);
-        node.push_back(hp.n);
-        return node;
-      }
-
-      static bool decode(const Node& node, HgdPars& hp) {
-        if(!node.IsSequence() || node.size() != 5) return false;
-        hp.A = node[0].as<double>();
-        hp.a = node[1].as<double>();
-        hp.b = node[2].as<double>();
-        hp.p0 = node[3].as<double>();
-        hp.n = node[4].as<double>();
-        return true;
-      }
-    };
+  template<> struct convert<Database> {
+    static Node encode(const Database& db) {
+      Node node;
+      node.push_back(db.mDb);
+      return node;
+    }
+    static bool decode(const Node& node, Database& db) {
+      if (!node.IsSequence()) return false;
+      db.mDb = node[0].as< map<string, Particle> >();
+      return true;
+    }
+  };
 }
 
-class Database {
+class DatabaseManager {
   private:
     string dbfile;
 
   public:
-    Database(const string&);
-    virtual ~Database() {}
+    DatabaseManager(const string&);
+    virtual ~DatabaseManager() {}
 
     void writeDb();
 };

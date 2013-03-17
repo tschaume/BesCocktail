@@ -5,8 +5,8 @@
 
 int main(int argc, char **argv) {
   try {
-    Database* db = new Database("test.yml");
-    db->writeDb();
+    DatabaseManager* dbm = new DatabaseManager("test.yml");
+    dbm->writeDb();
   }
   catch(const std::exception& e) {
     std::cerr << "Unhandled Exception: " << e.what() << std::endl;
