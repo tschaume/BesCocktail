@@ -6,11 +6,15 @@
 #include <TFile.h>
 
 #include "StRoot/BesCocktail/CmdLine.h"
-#include "StRoot/BesCocktail/Utils.h"
 #include "StRoot/BesCocktail/Functions.h"
 
 const double ptMin = 0.;
 const double ptMax = 10.;
+
+void printInfo(int n) {
+  if ( n > 0 && !(n%100000) ) std::cout << n/1000 << "k" << std::endl;
+  else if ( !(n%10000) ) std::cout << "." << std::flush;
+}
 
 int main(int argc, char **argv) {
   try {
@@ -33,7 +37,7 @@ int main(int argc, char **argv) {
 
     // start loop
     for ( int n = 0; n < clopts->ndecays; ++n ) {
-      Utils::printInfo(n);
+      printInfo(n);
       Double_t pt = fPt->GetRandom(ptMin,ptMax);
       hPt->Fill(pt);
     }
