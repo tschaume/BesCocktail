@@ -12,6 +12,5 @@ class Utils {
     virtual ~Utils() {}
 
     static void printInfo(int);
-    static bool checkParticle(const std::string&);
 };
 #endif  // STROOT_BESCOCKTAIL_UTILS_H_

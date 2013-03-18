@@ -2,7 +2,22 @@
 #include "StRoot/BesCocktail/Database.h"
 #include <fstream>
 
-DatabaseManager::DatabaseManager(const string& d) : dbfile(d) {}
+DatabaseManager* DatabaseManager::mDbm = NULL;
+
+DatabaseManager::DatabaseManager(const string& d, bool bWrite)
+: dbfile(d)
+{
+  if ( !bWrite ) {
+    // load database (set mDB)
+    YAML::Node nodeIn = YAML::LoadFile(dbfile);
+    mDB = nodeIn["DB"].as<Database>();
+  }
+}
+
+DatabaseManager* DatabaseManager::Instance(const string& d, bool bWrite) {
+  if ( !mDbm ) mDbm = new DatabaseManager(d, bWrite);
+  return mDbm;
+}
 
 void DatabaseManager::writeDb() {
   // particles

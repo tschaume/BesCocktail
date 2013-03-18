@@ -5,7 +5,7 @@
 
 int main(int argc, char **argv) {
   try {
-    DatabaseManager* dbm = new DatabaseManager("test.yml");
+    DatabaseManager* dbm = DatabaseManager::Instance("test.yml", true);
     dbm->writeDb();
   }
   catch(const std::exception& e) {

@@ -4,11 +4,13 @@
 
 #include <boost/program_options.hpp>
 #include <string>
+#include "StRoot/BesCocktail/Database.h"
 
 namespace po = boost::program_options;
 
 class CmdLine {
   private:
+    DatabaseManager* dbm;
 
   public:
     CmdLine();
@@ -18,6 +20,8 @@ class CmdLine {
     bool bVerbose;
     std::string particle;
     int ndecays;
+    std::string dbfile;
+    double energy;
 
     bool parse(int argc, char *argv[]);
     void print();

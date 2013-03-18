@@ -21,12 +21,12 @@ int main(int argc, char **argv) {
     TFile* fout = new TFile("test.root","recreate");
     fout->cd();
 
-    // init histograms
+    // init histograms TODO: ntuple
     TH1D* hPt = new TH1D("hPt","hPt",1000,Constants::mPtMin,Constants::mPtMax);
 
     // init functions
-    Functions* fp = new Functions(clopts->particle);
-    TF1* fPt = new TF1("fPt",fp, &Functions::Hagedorn,
+    Functions* fp = new Functions(clopts->particle, clopts->energy);
+    TF1* fPt = new TF1("fPt",fp, &Functions::MtScaling,
         Constants::mPtMin,Constants::mPtMax,0);
     fPt->SetNpx(10000);
 

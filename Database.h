@@ -22,6 +22,17 @@ namespace ad = boost::adaptors;
 struct Particle {
   map<string, double> m; // mass in GeV/c2
   map<double, vector<double> > mhp; // energy, [A, a, b, p0, n]
+  bool operator==(const Particle& prt) const {
+    //BOOST_FOREACH(string s, m | ad::map_keys) {
+    //  if ( m[s] != prt.m[s] ) return false;
+    //}
+    //BOOST_FOREACH(double e, mhp | ad::map_keys) {
+    //  for ( unsigned int i = 0; i < mhp[e].size(); ++i ) {
+    //    if ( mhp[e].at(i) != prt.mhp[e].at(i) ) return false;
+    //  }
+    //}
+    return true;
+  }
   void rndInit() { // for testing purposes only
     m["mass"] = rand() % 10;
     for ( int i = 0; i < 3; ++i ) {
@@ -59,6 +70,13 @@ namespace YAML {
 
 struct Database {
   map<string, Particle> mDb;
+  bool operator==(const Database& db) const {
+    //BOOST_FOREACH(string s, mDb | ad::map_keys) {
+    //  if ( mDb[s] == db.mDb[s] ) continue;
+    //  else return false;
+    //}
+    return true;
+  }
   void print() {
     BOOST_FOREACH(string s, mDb | ad::map_keys) {
       cout << s << endl; mDb[s].print();
@@ -84,11 +102,23 @@ namespace YAML {
 class DatabaseManager {
   private:
     string dbfile;
+    DatabaseManager(const string&, bool bWrite = false);
+    static DatabaseManager* mDbm;
+    Database mDB;
 
   public:
-    DatabaseManager(const string&);
+    static DatabaseManager* Instance(const string&, bool bWrite = false);
+    static DatabaseManager* Instance() { return mDbm; }
     virtual ~DatabaseManager() {}
 
+    Database& getDB() { return mDB; }
+    bool checkParticle(const string& p) const { return mDB.mDb.count(p); }
+    bool checkEnergy(const string& p, const double& e) {
+      return mDB.mDb[p].mhp.count(e);
+    }
+    void print() { mDB.print(); }
+
+    // test database
     void writeDb();
 };
 #endif  // STROOT_BESCOCKTAIL_DATABASE_H_
