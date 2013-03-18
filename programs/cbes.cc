@@ -2,7 +2,7 @@
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 
 #include <TF1.h>
-#include <TH1D.h>
+#include <TNtuple.h>
 #include <TFile.h>
 
 #include "StRoot/BesCocktail/CmdLine.h"
@@ -23,12 +23,12 @@ int main(int argc, char **argv) {
     if ( !clopts->parse(argc, argv) ) return 0;
     clopts->print();
 
-    // init outfile
-    TFile* fout = new TFile("test.root","recreate");
+    // init outfile & ntuple
+    const char* fn = (clopts->particle + ".root").c_str();
+    TFile* fout = new TFile(fn, "recreate");
     fout->cd();
-
-    // init histograms TODO: ntuple
-    TH1D* hPt = new TH1D("hPt","hPt",1000,ptMin,ptMax);
+    const char* nt_name = clopts->particle.c_str();
+    TNtuple* nt = new TNtuple(nt_name, nt_name, "PtIn", 0);
 
     // init functions
     Functions* fp = new Functions(clopts->particle, clopts->energy);
@@ -39,11 +39,11 @@ int main(int argc, char **argv) {
     for ( int n = 0; n < clopts->ndecays; ++n ) {
       printInfo(n);
       Double_t pt = fPt->GetRandom(ptMin,ptMax);
-      hPt->Fill(pt);
+      nt->Fill(pt);
     }
 
     // finish up
-    hPt->Write();
+    nt->Write();
     fout->Close();
   }
   catch(const std::exception& e) {
