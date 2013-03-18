@@ -8,7 +8,9 @@
 #include "StRoot/BesCocktail/CmdLine.h"
 #include "StRoot/BesCocktail/Utils.h"
 #include "StRoot/BesCocktail/Functions.h"
-#include "StRoot/BesCocktail/Constants.h"
+
+const double ptMin = 0.;
+const double ptMax = 10.;
 
 int main(int argc, char **argv) {
   try {
@@ -22,18 +24,17 @@ int main(int argc, char **argv) {
     fout->cd();
 
     // init histograms TODO: ntuple
-    TH1D* hPt = new TH1D("hPt","hPt",1000,Constants::mPtMin,Constants::mPtMax);
+    TH1D* hPt = new TH1D("hPt","hPt",1000,ptMin,ptMax);
 
     // init functions
     Functions* fp = new Functions(clopts->particle, clopts->energy);
-    TF1* fPt = new TF1("fPt",fp, &Functions::MtScaling,
-        Constants::mPtMin,Constants::mPtMax,0);
+    TF1* fPt = new TF1("fPt", fp, &Functions::MtScaling, ptMin, ptMax, 0);
     fPt->SetNpx(10000);
 
     // start loop
     for ( int n = 0; n < clopts->ndecays; ++n ) {
       Utils::printInfo(n);
-      Double_t pt = fPt->GetRandom(Constants::mPtMin,Constants::mPtMax);
+      Double_t pt = fPt->GetRandom(ptMin,ptMax);
       hPt->Fill(pt);
     }
 
