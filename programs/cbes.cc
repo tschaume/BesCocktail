@@ -11,6 +11,8 @@
 
 const double ptMin = 0.;
 const double ptMax = 10.;
+const double mMin = 2*Utils::emass;
+const double mMax = 2.;
 
 int main(int argc, char **argv) {
   try {
@@ -23,20 +25,28 @@ int main(int argc, char **argv) {
     Utils* ut = new Utils(clopts->particle);  // inits random generators, too
     TFile* fout = new TFile(ut->getOutFileName(clopts->particle), "recreate");
     const char* nt_name = clopts->particle.c_str();
-    TNtuple* nt = new TNtuple(nt_name, nt_name, "ptM:etaM:phiM", 0);
+    TNtuple* nt = new TNtuple(nt_name, nt_name, "ptM:etaM:phiM:mM", 0);
 
     // init functions
     Functions* fp = new Functions(clopts->particle, clopts->energy);
     TF1* fPt = new TF1("fPt", fp, &Functions::MtScaling, ptMin, ptMax, 0);
     fPt->SetNpx(10000);
+    TF1* fM = new TF1("fM", fp, &Functions::BreitWigner, mMin, mMax, 0);
+    fM->SetNpx(10000);
 
     // start loop
     for ( int n = 0; n < clopts->ndecays; ++n ) {
       ut->printInfo(n);
+      // input
       Double_t pt = fPt->GetRandom(ptMin,ptMax);
       Double_t eta = ut->getEta(pt);  // random based on uniform y [-1,1]
       Double_t phi = ut->getPhi();  // random phi [0,2pi]
-      nt->Fill(pt,eta,phi);
+      Double_t m = fM->GetRandom(mMin, mMax);
+      ut->setLvIn(pt, eta, phi, m);
+      // decay
+      ut->doTwoBodyDecay();
+      // fill output
+      nt->Fill(pt,eta,phi,m);
     }
 
     // finish up

@@ -17,5 +17,6 @@ class Functions {
 
     double HagedornPower(const double&);
     double MtScaling(double*, double*);
+    double BreitWigner(double*, double*);
 };
 #endif  // STROOT_BESCOCKTAIL_FUNCTIONS_H_

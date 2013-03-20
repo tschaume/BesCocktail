@@ -21,6 +21,7 @@ namespace ad = boost::adaptors;
 
 struct Particle {
   map<string, double> m; // mass in GeV/c2
+  map<string, double> w; // width in GeV/c2
   map<double, vector<double> > mhp; // energy, [A, a, b, p0, n]
   bool operator==(const Particle& prt) const {
     //BOOST_FOREACH(string s, m | ad::map_keys) {
@@ -35,6 +36,7 @@ struct Particle {
   }
   void rndInit() { // for testing purposes only
     m["mass"] = rand() % 10;
+    w["width"] = rand() % 10;
     for ( int i = 0; i < 3; ++i ) {
       vector<double> v;
       for ( int j = 0; j < 5; ++j ) v.push_back(rand()%1000);
@@ -43,6 +45,7 @@ struct Particle {
   }
   void print() {
     cout << "mass: " << m["mass"] << endl;
+    cout << "width: " << w["width"] << endl;
     BOOST_FOREACH(double e, mhp | ad::map_keys) {
       cout << e << ": [";
       BOOST_FOREACH(double p, mhp[e]) { cout << " " << p; }
@@ -56,13 +59,15 @@ namespace YAML {
     static Node encode(const Particle& prt) {
       Node node;
       node.push_back(prt.m);
+      node.push_back(prt.w);
       node.push_back(prt.mhp);
       return node;
     }
     static bool decode(const Node& node, Particle& prt) {
       if (!node.IsSequence()) return false;
       prt.m = node[0].as< map<string, double> >();
-      prt.mhp = node[1].as< map< double, vector<double> > >();
+      prt.w = node[1].as< map<string, double> >();
+      prt.mhp = node[2].as< map< double, vector<double> > >();
       return true;
     }
   };
@@ -117,10 +122,7 @@ class DatabaseManager {
       return mDB.mDb[p].mhp.count(e);
     }
     void print() { mDB.print(); }
-    double getMass2(const string& p) {
-      double mass = this->getDB().mDb[p].m["mass"];
-      return mass*mass;
-    }
+    double getMass(const string& p) { return this->getDB().mDb[p].m["mass"]; }
 
     // test database
     void writeDb();
