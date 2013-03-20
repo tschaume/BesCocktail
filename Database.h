@@ -117,6 +117,10 @@ class DatabaseManager {
       return mDB.mDb[p].mhp.count(e);
     }
     void print() { mDB.print(); }
+    double getMass2(const string& p) {
+      double mass = this->getDB().mDb[p].m["mass"];
+      return mass*mass;
+    }
 
     // test database
     void writeDb();

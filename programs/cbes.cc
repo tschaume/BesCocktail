@@ -7,14 +7,10 @@
 
 #include "StRoot/BesCocktail/CmdLine.h"
 #include "StRoot/BesCocktail/Functions.h"
+#include "StRoot/BesCocktail/Utils.h"
 
 const double ptMin = 0.;
 const double ptMax = 10.;
-
-void printInfo(int n) {
-  if ( n > 0 && !(n%100000) ) std::cout << n/1000 << "k" << std::endl;
-  else if ( !(n%10000) ) std::cout << "." << std::flush;
-}
 
 int main(int argc, char **argv) {
   try {
@@ -23,12 +19,11 @@ int main(int argc, char **argv) {
     if ( !clopts->parse(argc, argv) ) return 0;
     clopts->print();
 
-    // init outfile & ntuple
-    const char* fn = (clopts->particle + ".root").c_str();
-    TFile* fout = new TFile(fn, "recreate");
-    fout->cd();
+    // init utils, outfile & ntuple
+    Utils* ut = new Utils(clopts->particle);  // inits random generators, too
+    TFile* fout = new TFile(ut->getOutFileName(clopts->particle), "recreate");
     const char* nt_name = clopts->particle.c_str();
-    TNtuple* nt = new TNtuple(nt_name, nt_name, "PtIn", 0);
+    TNtuple* nt = new TNtuple(nt_name, nt_name, "ptM:etaM:phiM", 0);
 
     // init functions
     Functions* fp = new Functions(clopts->particle, clopts->energy);
@@ -37,9 +32,11 @@ int main(int argc, char **argv) {
 
     // start loop
     for ( int n = 0; n < clopts->ndecays; ++n ) {
-      printInfo(n);
+      ut->printInfo(n);
       Double_t pt = fPt->GetRandom(ptMin,ptMax);
-      nt->Fill(pt);
+      Double_t eta = ut->getEta(pt);  // random based on uniform y [-1,1]
+      Double_t phi = ut->getPhi();  // random phi [0,2pi]
+      nt->Fill(pt,eta,phi);
     }
 
     // finish up
