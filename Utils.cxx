@@ -56,3 +56,14 @@ void Utils::doTwoBodyDecay() {
   ep->Boost(bv);
   em->Boost(bv);
 }
+
+void Utils::applyMomSmear(TLorentzVector& l, TF1* fS, TF1* fR) {
+  double ptrc = l.Pt();
+  ptrc *= 1 + fS->GetRandom() * fR->Eval(l.Pt())/0.01;
+  l.SetPtEtaPhiM(ptrc, l.Eta(), l.Phi(), emass);
+}
+
+void Utils::smear(TF1* fS, TF1* fR) {
+  applyMomSmear(*ep, fS, fR);
+  applyMomSmear(*em, fS, fR);
+}

@@ -5,6 +5,7 @@
 #include <string>
 #include <TRandom3.h>
 #include <TLorentzVector.h>
+#include <TF1.h>
 #include "StRoot/BesCocktail/Database.h"
 
 class Utils {
@@ -18,6 +19,7 @@ class Utils {
     TLorentzVector* lvIn;
     TLorentzVector* ep;
     TLorentzVector* em;
+    void applyMomSmear(TLorentzVector&, TF1*, TF1*);
 
   public:
     Utils(const std::string&);
@@ -31,5 +33,6 @@ class Utils {
     double getPhi();
     void setLvIn(const double&, const double&, const double&, const double&);
     void doTwoBodyDecay();
+    void smear(TF1*, TF1*);
 };
 #endif  // STROOT_BESCOCKTAIL_UTILS_H_

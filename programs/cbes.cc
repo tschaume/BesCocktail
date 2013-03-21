@@ -33,6 +33,10 @@ int main(int argc, char **argv) {
     fPt->SetNpx(10000);
     TF1* fM = new TF1("fM", fp, &Functions::BreitWigner, mMin, mMax, 0);
     fM->SetNpx(10000);
+    TF1* fRes = new TF1("fRes", fp, &Functions::MomRes, ptMin, ptMax, 0);
+    fM->SetNpx(10000);
+    TF1* fCB = new TF1("fCB", fp, &Functions::CrystalBall2, -1., 1., 0);
+    fCB->SetNpx(10000);
 
     // start loop
     for ( int n = 0; n < clopts->ndecays; ++n ) {
@@ -45,6 +49,8 @@ int main(int argc, char **argv) {
       ut->setLvIn(pt, eta, phi, m);
       // decay
       ut->doTwoBodyDecay();
+      // smear decay particle momenta
+      ut->smear(fCB, fRes);
       // fill output
       nt->Fill(pt,eta,phi,m);
     }

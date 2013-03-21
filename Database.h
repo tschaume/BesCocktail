@@ -73,7 +73,34 @@ namespace YAML {
   };
 }
 
+struct DbHeader {
+  map<string, vector<double> > mPars;  // general container for parameters
+  bool operator==(const DbHeader& dbh) const { return true; }
+  void print() {
+    BOOST_FOREACH(string s, mPars | ad::map_keys) {
+      BOOST_FOREACH(double p, mPars[s]) { cout << p << " " << std::flush; }
+      cout << endl;
+    }
+  }
+};
+
+namespace YAML {
+  template<> struct convert<DbHeader> {
+    static Node encode(const DbHeader& dbh) {
+      Node node;
+      node.push_back(dbh.mPars);
+      return node;
+    }
+    static bool decode(const Node& node, DbHeader& dbh) {
+      if (!node.IsSequence()) return false;
+      dbh.mPars = node[0].as< map<string, vector<double> > >();
+      return true;
+    }
+  };
+}
+
 struct Database {
+  map<string, DbHeader > mHdr;
   map<string, Particle> mDb;
   bool operator==(const Database& db) const {
     //BOOST_FOREACH(string s, mDb | ad::map_keys) {
@@ -86,6 +113,9 @@ struct Database {
     BOOST_FOREACH(string s, mDb | ad::map_keys) {
       cout << s << endl; mDb[s].print();
     }
+    BOOST_FOREACH(string s, mHdr | ad::map_keys) {
+      cout << s << endl; mHdr[s].print();
+    }
   }
 };
 
@@ -93,12 +123,14 @@ namespace YAML {
   template<> struct convert<Database> {
     static Node encode(const Database& db) {
       Node node;
+      node.push_back(db.mHdr);
       node.push_back(db.mDb);
       return node;
     }
     static bool decode(const Node& node, Database& db) {
       if (!node.IsSequence()) return false;
-      db.mDb = node[0].as< map<string, Particle> >();
+      db.mHdr = node[0].as< map<string, DbHeader> >();
+      db.mDb = node[1].as< map<string, Particle> >();
       return true;
     }
   };
