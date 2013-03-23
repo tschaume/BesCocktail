@@ -34,5 +34,7 @@ class Utils {
     void setLvIn(const double&, const double&, const double&, const double&);
     void doTwoBodyDecay();
     void smear(TF1*, TF1*);
+    TLorentzVector* getEp() { return ep; }
+    TLorentzVector* getEm() { return em; }
 };
 #endif  // STROOT_BESCOCKTAIL_UTILS_H_

@@ -25,7 +25,8 @@ int main(int argc, char **argv) {
     Utils* ut = new Utils(clopts->particle);  // inits random generators, too
     TFile* fout = new TFile(ut->getOutFileName(clopts->particle), "recreate");
     const char* nt_name = clopts->particle.c_str();
-    TNtuple* nt = new TNtuple(nt_name, nt_name, "ptM:etaM:phiM:mM", 0);
+    const char* nt_vars = "ptM:etaM:phiM:mM:ptEp:ptEm:ptEpR:ptEmR";
+    TNtuple* nt = new TNtuple(nt_name, nt_name, nt_vars, 0);
 
     // init functions
     Functions* fp = new Functions(clopts->particle, clopts->energy);
@@ -50,9 +51,13 @@ int main(int argc, char **argv) {
       // decay
       ut->doTwoBodyDecay();
       // smear decay particle momenta
+      Double_t ptep = ut->getEp()->Pt();
+      Double_t ptem = ut->getEm()->Pt();
       ut->smear(fCB, fRes);
+      Double_t ptep_rec = ut->getEp()->Pt();
+      Double_t ptem_rec = ut->getEm()->Pt();
       // fill output
-      nt->Fill(pt,eta,phi,m);
+      nt->Fill(pt,eta,phi,m,ptep,ptem,ptep_rec,ptem_rec);
     }
 
     // finish up
