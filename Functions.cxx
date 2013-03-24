@@ -11,6 +11,8 @@ Functions::Functions(const std::string& p, const double& e)
   vres = dbm->getDB().mHdr["header"].mPars["res"];
   vcr = dbm->getDB().mHdr["header"].mPars["crystal"];
   fsfac = dbm->getDB().mDb[particle].fsfac["fsfac"];
+  mh = dbm->getDB().mDb[particle].m["mass"];
+  wdth = dbm->getDB().mDb[particle].w["width"];
 }
 
 double Functions::HagedornPower(const double& x) {
@@ -20,16 +22,13 @@ double Functions::HagedornPower(const double& x) {
 }
 
 double Functions::MtScaling(double* x, double* p) {
-  double mh = dbm->getDB().mDb[particle].m["mass"];
   double mt = sqrt(x[0]*x[0] + mh*mh);
   return HagedornPower(mt);
 }
 
 double Functions::BreitWigner(double* x, double* p) {
-  double gamma = dbm->getDB().mDb[particle].w["width"];
-  double m0 = dbm->getDB().mDb[particle].m["mass"];
-  double denom = (x[0]-m0)*(x[0]-m0)+gamma*gamma/4.;
-  return 0.5/TMath::Pi()*gamma/denom;
+  double denom = (x[0]-mh)*(x[0]-mh)+wdth*wdth/4.;
+  return 0.5/TMath::Pi()*wdth/denom;
 }
 
 double Functions::MomRes(double* x, double* p) {

@@ -14,10 +14,12 @@ class Functions {
     string particle;
     double energy;
     DatabaseManager* dbm;
-    vector<double> vhp;
-    vector<double> vres;
-    vector<double> vcr;
-    double fsfac;
+    vector<double> vhp;  // HagedornPower Params
+    vector<double> vres;  // Pt Resolution Params
+    vector<double> vcr;  // CrystalBall params
+    double fsfac;  // final state factor
+    double mh;  // hadron mass
+    double wdth;  // BW decay width
 
   public:
     Functions(const string&, const double&);
