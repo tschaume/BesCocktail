@@ -1,6 +1,13 @@
 // Copyright (c) 2013 Patrick Huck
 #include "StRoot/BesCocktail/Utils.h"
 #include <iostream>
+#include <TMath.h>
+
+double Utils::emass = 0.510998928e-3;
+double Utils::emass2 = emass*emass;
+double Utils::twoPi = 2.*TMath::Pi();
+double Utils::threePi = 3.*TMath::Pi();
+double Utils::alpha = 1./137.035999174;
 
 Utils::Utils() { }
 

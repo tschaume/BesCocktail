@@ -11,6 +11,12 @@ class Utils {
     Utils();
     virtual ~Utils() {}
 
+    static double emass;
+    static double emass2;
+    static double twoPi;
+    static double threePi;
+    static double alpha;
+
     static void printInfo(const int&);
     static const char* getOutFileName(const std::string&);
 };

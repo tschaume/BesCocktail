@@ -39,12 +39,10 @@ class Simulation {
     Simulation(const std::string&, const double&);
     virtual ~Simulation() {}
 
-    static double emass;
     static double ptMin;
     static double ptMax;
     static double mMin;
     static double mMax;
-    static double twoPi;
 
     void sampleInput();
     void doTwoBodyDecay();

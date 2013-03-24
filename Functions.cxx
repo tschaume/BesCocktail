@@ -1,5 +1,6 @@
 // Copyright (c) 2013 Patrick Huck
 #include "StRoot/BesCocktail/Functions.h"
+#include "StRoot/BesCocktail/Utils.h"
 #include <cmath>
 #include <TMath.h>
 
@@ -9,6 +10,7 @@ Functions::Functions(const std::string& p, const double& e)
   vhp = dbm->getDB().mDb[particle].mhp[energy];
   vres = dbm->getDB().mHdr["header"].mPars["res"];
   vcr = dbm->getDB().mHdr["header"].mPars["crystal"];
+  fsfac = dbm->getDB().mDb[particle].fsfac["fsfac"];
 }
 
 double Functions::HagedornPower(const double& x) {
@@ -52,4 +54,11 @@ double Functions::CrystalBall2(double* x, double* p) {  // both power law tails
   if ( arg < -vcr[3] ) return A*pow(B-arg, -vcr[2]);
   if ( arg >  vcr[5] ) return C*pow(D+arg, -vcr[4]);
   return exp(-0.5*arg*arg);  // gaussian part
+}
+
+double Functions::QED(const double& x) {
+  const double x2 = x*x;
+  const double r = Utils::emass2/x2;
+  const double A = sqrt(1.-4.*r)*(1.+2.*r)/x2;
+  return fsfac * Utils::alpha / Utils::threePi * A/x2;
 }

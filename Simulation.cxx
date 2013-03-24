@@ -1,14 +1,13 @@
 // Copyright (c) 2013 Patrick Huck
 #include "StRoot/BesCocktail/Simulation.h"
+#include "StRoot/BesCocktail/Utils.h"
 #include <iostream>
 #include <TMath.h>
 
-double Simulation::emass = 0.510998928e-3;
 double Simulation::ptMin = 0.;
 double Simulation::ptMax = 10.;
-double Simulation::mMin = 2*emass;
+double Simulation::mMin = 2*Utils::emass;
 double Simulation::mMax = 2.;
-double Simulation::twoPi = 2.*TMath::Pi();
 
 Simulation::Simulation(const string& p, const double& e)
 : particle(p), energy(e)
@@ -34,7 +33,7 @@ Simulation::Simulation(const string& p, const double& e)
   fCB->SetNpx(10000);
 }
 
-double Simulation::getPhi() { return phiGen->Uniform(0.,twoPi); }
+double Simulation::getPhi() { return phiGen->Uniform(0.,Utils::twoPi); }
 
 double Simulation::getY() { return yGen->Uniform(-1.,1.); }
 
@@ -58,14 +57,14 @@ void Simulation::sampleInput() {
 void Simulation::doTwoBodyDecay() {
   // electron in VM center of mass
   double mVM = lvIn->M();
-  double pCM = sqrt(mVM*mVM/4.-emass*emass);  // electron momentum
+  double pCM = sqrt(mVM*mVM/4.-Utils::emass2);  // electron momentum
   double phiCM = getPhi();  // random electron phi
   double pzCM = pCM*getY();  // electron pz, based on random cos(theta)
   double pTCM = sqrt(pCM*pCM-pzCM*pzCM);  // electron pT
   double etaCM = 0.5*log((pCM+pzCM)/(pCM-pzCM)); // electron eta
   // e+/e- four-vectors in CM of VM
-  ep->SetPtEtaPhiM(pTCM,etaCM,phiCM,emass);
-  em->SetPtEtaPhiM(pTCM,-etaCM,phiCM+TMath::Pi(),emass);
+  ep->SetPtEtaPhiM(pTCM,etaCM,phiCM,Utils::emass);
+  em->SetPtEtaPhiM(pTCM,-etaCM,phiCM+TMath::Pi(),Utils::emass);
   // boost to lab frame
   TVector3 bv = lvIn->BoostVector();
   ep->Boost(bv);
@@ -77,7 +76,7 @@ void Simulation::doTwoBodyDecay() {
 void Simulation::applyMomSmear(TLorentzVector& l) {
   double ptrc = l.Pt();
   ptrc *= 1 + fCB->GetRandom() * fRes->Eval(l.Pt())/0.01;
-  l.SetPtEtaPhiM(ptrc, l.Eta(), l.Phi(), emass);
+  l.SetPtEtaPhiM(ptrc, l.Eta(), l.Phi(), Utils::emass);
 }
 
 void Simulation::smear() {

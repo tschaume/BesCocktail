@@ -17,6 +17,7 @@ class Functions {
     vector<double> vhp;
     vector<double> vres;
     vector<double> vcr;
+    double fsfac;
 
   public:
     Functions(const string&, const double&);
@@ -29,5 +30,6 @@ class Functions {
     double getCrystalA(const double&, const double&);
     double getCrystalB(const double&, const double&);
     double CrystalBall2(double*, double*);
+    double QED(const double&);
 };
 #endif  // STROOT_BESCOCKTAIL_FUNCTIONS_H_
