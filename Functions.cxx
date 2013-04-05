@@ -13,6 +13,9 @@ Functions::Functions(const std::string& p, const double& e)
   fsfac = dbm->getDB().mDb[particle].fsfac["fsfac"];
   mh = dbm->getDB().mDb[particle].m["mass"];
   wdth = dbm->getDB().mDb[particle].w["width"];
+  isPhiOm = ( particle == "phi" || particle == "omega" );
+  mhdec = dbm->getDB().mDb["eta"].m["mass"];
+  if ( particle == "omega" ) mhdec = dbm->getDB().mDb["pion"].m["mass"];
 }
 
 double Functions::HagedornPower(const double& x) {
@@ -58,6 +61,18 @@ double Functions::CrystalBall2(double* x, double* p) {  // both power law tails
 double Functions::QED(const double& x) {
   const double x2 = x*x;
   const double r = Utils::emass2/x2;
-  const double A = sqrt(1.-4.*r)*(1.+2.*r)/x2;
+  const double A = sqrt(1.-4.*r)*(1.+2.*r);
   return fsfac * Utils::alpha / Utils::threePi * A/x2;
+}
+
+double Functions::PhiOmPS(const double& x) {
+  double m2d = mh*mh - mhdec*mhdec;
+  double tA = 1. + x*x / m2d; tA *= tA;
+  double tB = 2*mh*x / m2d; tB *= tB;
+  return pow(tA-tB, 1.5);
+}
+
+double Functions::PS(const double& x) {
+  if ( isPhiOm ) return PhiOmPS(x);
+  return pow(1.-x*x/(mh*mh), 3);
 }

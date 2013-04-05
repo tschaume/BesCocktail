@@ -20,18 +20,23 @@ class Functions {
     double fsfac;  // final state factor
     double mh;  // hadron mass
     double wdth;  // BW decay width
+    bool isPhiOm;  // true if is phi or omega
+    double mhdec;  // decay hadron mass
+
+    double HagedornPower(const double&);
+    double getCrystalA(const double&, const double&);
+    double getCrystalB(const double&, const double&);
+    double QED(const double&);
+    double PhiOmPS(const double&);
+    double PS(const double&);
 
   public:
     Functions(const string&, const double&);
     virtual ~Functions() {}
 
-    double HagedornPower(const double&);
     double MtScaling(double*, double*);
     double BreitWigner(double*, double*);
     double MomRes(double*, double*);
-    double getCrystalA(const double&, const double&);
-    double getCrystalB(const double&, const double&);
     double CrystalBall2(double*, double*);
-    double QED(const double&);
 };
 #endif  // STROOT_BESCOCKTAIL_FUNCTIONS_H_
