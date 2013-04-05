@@ -22,6 +22,7 @@ class Functions {
     double wdth;  // BW decay width
     bool isPhiOm;  // true if is phi or omega
     double mhdec;  // decay hadron mass
+    double l2;  // Lambda^(-2)
 
     double HagedornPower(const double&);
     double getCrystalA(const double&, const double&);
@@ -29,6 +30,7 @@ class Functions {
     double QED(const double&);
     double PhiOmPS(const double&);
     double PS(const double&);
+    double F2(const double&);
 
   public:
     Functions(const string&, const double&);
@@ -38,5 +40,6 @@ class Functions {
     double BreitWigner(double*, double*);
     double MomRes(double*, double*);
     double CrystalBall2(double*, double*);
+    double KrollWada(double*, double*);
 };
 #endif  // STROOT_BESCOCKTAIL_FUNCTIONS_H_

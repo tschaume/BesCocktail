@@ -11,11 +11,12 @@ Functions::Functions(const std::string& p, const double& e)
   vres = dbm->getDB().mHdr["header"].mPars["res"];
   vcr = dbm->getDB().mHdr["header"].mPars["crystal"];
   fsfac = dbm->getDB().mDb[particle].fsfac["fsfac"];
-  mh = dbm->getDB().mDb[particle].m["mass"];
   wdth = dbm->getDB().mDb[particle].w["width"];
+  l2 = dbm->getDB().mDb[particle].l2["l2"];
   isPhiOm = ( particle == "phi" || particle == "omega" );
-  mhdec = dbm->getDB().mDb["eta"].m["mass"];
-  if ( particle == "omega" ) mhdec = dbm->getDB().mDb["pion"].m["mass"];
+  mh = dbm->getMass(particle);
+  mhdec = dbm->getMass("eta");
+  if ( particle == "omega" ) mhdec = dbm->getMass("omega");
 }
 
 double Functions::HagedornPower(const double& x) {
@@ -75,4 +76,14 @@ double Functions::PhiOmPS(const double& x) {
 double Functions::PS(const double& x) {
   if ( isPhiOm ) return PhiOmPS(x);
   return pow(1.-x*x/(mh*mh), 3);
+}
+
+double Functions::F2(const double& x) {
+  // TODO: use 1+(m/l)^2 for pion!?
+  double base = 1. - x*x * l2;
+  return 1. / (base*base);
+}
+
+double Functions::KrollWada(double* x, double* p) {
+  return F2(x[0]) * QED(x[0]) * PS(x[0]);
 }
