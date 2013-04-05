@@ -23,6 +23,7 @@ struct Particle {
   map<string, double> m; // mass in GeV/c2
   map<string, double> w; // width in GeV/c2
   map<string, double> fsfac; // final state factor
+  map<string, double> l2; // Lambda^(-2)
   map<double, vector<double> > mhp; // energy, [A, a, b, p0, n]
   bool operator==(const Particle& prt) const {
     //BOOST_FOREACH(string s, m | ad::map_keys) {
@@ -48,6 +49,7 @@ struct Particle {
     cout << "mass: " << m["mass"] << endl;
     cout << "width: " << w["width"] << endl;
     cout << "fsfac: " << fsfac["fsfac"] << endl;
+    cout << "l2: " << l2["l2"] << endl;
     BOOST_FOREACH(double e, mhp | ad::map_keys) {
       cout << e << ": [";
       BOOST_FOREACH(double p, mhp[e]) { cout << " " << p; }
@@ -63,6 +65,7 @@ namespace YAML {
       node.push_back(prt.m);
       node.push_back(prt.w);
       node.push_back(prt.fsfac);
+      node.push_back(prt.l2);
       node.push_back(prt.mhp);
       return node;
     }
@@ -71,7 +74,8 @@ namespace YAML {
       prt.m = node[0].as< map<string, double> >();
       prt.w = node[1].as< map<string, double> >();
       prt.fsfac = node[2].as< map<string, double> >();
-      prt.mhp = node[3].as< map< double, vector<double> > >();
+      prt.l2 = node[3].as< map<string, double> >();
+      prt.mhp = node[4].as< map< double, vector<double> > >();
       return true;
     }
   };
