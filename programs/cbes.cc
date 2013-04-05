@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
       // init
       sim->sampleInput();
       // decay
-      sim->doTwoBodyDecay();
+      sim->decay();
       // smear decay particle momenta
       sim->smear();
       // fill output

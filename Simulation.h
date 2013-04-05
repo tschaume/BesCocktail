@@ -15,9 +15,9 @@ class Simulation {
     std::string particle;
     double energy;
 
-    TRandom3* yGen;
-    TRandom3* phiGen;
+    std::vector<TRandom3*> rndm;
     double mass;  // hadron mass
+    int mode;  // decay mode
     DatabaseManager* dbm;
     TLorentzVector* lvIn;
     TLorentzVector* ep;
@@ -27,13 +27,15 @@ class Simulation {
     TF1* fM;  // input mass distribution
     TF1* fRes;  // pt momentum resolution
     TF1* fCB;  // CrystalBall for momentum smearing
+    TF1* fKW;  // KrollWada for dalitz decays
     std::vector<double> vfill;
     Float_t* afill;
 
     double getEta(const double&);
-    double getPhi();
-    double getY();
     void applyMomSmear(TLorentzVector&);
+    void doTwoBodyDecay();
+    void doDalitzDecay();
+    void setEeVmCm(const double&);
 
   public:
     Simulation(const std::string&, const double&);
@@ -45,7 +47,7 @@ class Simulation {
     static double mMax;
 
     void sampleInput();
-    void doTwoBodyDecay();
+    void decay();
     void smear();
     Float_t* getFillArray();
 };
