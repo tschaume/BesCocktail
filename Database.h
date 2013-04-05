@@ -24,6 +24,7 @@ struct Particle {
   map<string, double> w; // width in GeV/c2
   map<string, double> fsfac; // final state factor
   map<string, double> l2; // Lambda^(-2)
+  map<string, int> mode; // decay mode
   map<double, vector<double> > mhp; // energy, [A, a, b, p0, n]
   bool operator==(const Particle& prt) const {
     //BOOST_FOREACH(string s, m | ad::map_keys) {
@@ -50,6 +51,7 @@ struct Particle {
     cout << "width: " << w["width"] << endl;
     cout << "fsfac: " << fsfac["fsfac"] << endl;
     cout << "l2: " << l2["l2"] << endl;
+    cout << "mode: " << mode["decay"] << endl;
     BOOST_FOREACH(double e, mhp | ad::map_keys) {
       cout << e << ": [";
       BOOST_FOREACH(double p, mhp[e]) { cout << " " << p; }
@@ -66,6 +68,7 @@ namespace YAML {
       node.push_back(prt.w);
       node.push_back(prt.fsfac);
       node.push_back(prt.l2);
+      node.push_back(prt.mode);
       node.push_back(prt.mhp);
       return node;
     }
@@ -75,7 +78,8 @@ namespace YAML {
       prt.w = node[1].as< map<string, double> >();
       prt.fsfac = node[2].as< map<string, double> >();
       prt.l2 = node[3].as< map<string, double> >();
-      prt.mhp = node[4].as< map< double, vector<double> > >();
+      prt.mode = node[4].as< map<string, int> >();
+      prt.mhp = node[5].as< map< double, vector<double> > >();
       return true;
     }
   };
@@ -162,7 +166,12 @@ class DatabaseManager {
       return mDB.mDb[p].mhp.count(e);
     }
     void print() { mDB.print(); }
-    double getMass(const string& p) { return this->getDB().mDb[p].m["mass"]; }
+    double getMass(const string& p) {
+      return this->getDB().mDb[p].m["mass"];
+    }
+    double getDecayMode(const string& p) {
+      return this->getDB().mDb[p].mode["decay"];
+    }
 
     // test database
     void writeDb();
