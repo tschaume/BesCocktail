@@ -19,7 +19,6 @@ Simulation::Simulation(const string& p, const double& e)
   dbm = DatabaseManager::Instance();
   mass = dbm->getMass(particle);
   mode = dbm->getDecayMode(particle);
-  lvIn = new TLorentzVector();
   ep = new TLorentzVector();
   em = new TLorentzVector();
   // init Functions
@@ -43,14 +42,13 @@ double Simulation::getEta(const double& pT) {
 }
 
 void Simulation::sampleInput() {
-  double pt = fPt->GetRandom(); // rndm[4]->Uniform(ptMin, ptMax);
-  double eta = getEta(pt);  // random based on uniform y [-1,1]
-  double phi = rndm[1]->Uniform(0., Utils::twoPi);  // random phi [0,2pi]
-  lvIn->SetPtEtaPhiM(pt, eta, phi, mass);
+  double mPt = fPt->GetRandom(); // rndm[4]->Uniform(ptMin, ptMax);
+  double mEta = getEta(mPt);  // random based on uniform y [-1,1]
+  double mPhi = rndm[1]->Uniform(0., Utils::twoPi);  // random phi [0,2pi]
   // fill output vector
-  vfill.push_back(pt);
-  vfill.push_back(eta);
-  vfill.push_back(phi);
+  vfill.push_back(mPt);
+  vfill.push_back(mEta);
+  vfill.push_back(mPhi);
 }
 
 void Simulation::eeDecayVM(const double& mVM) {  // electrons in VM center of mass
@@ -65,13 +63,14 @@ void Simulation::eeDecayVM(const double& mVM) {  // electrons in VM center of ma
 
 void Simulation::doTwoBodyDecay() {
   // electrons in VM center of mass
-  double m;
-  do { m = fM->GetRandom(); } while ( m/2. < Utils::emass );
-  lvIn->SetPtEtaPhiM(lvIn->Pt(), lvIn->Eta(), lvIn->Phi(), m);  // reset VM mass
-  vfill.push_back(m);
-  eeDecayVM(m);
+  double mBW;  // Breit-Wigner mass
+  do { mBW = fM->GetRandom(); } while ( mBW/2. < Utils::emass );
+  vfill.push_back(mBW);
+  eeDecayVM(mBW);
   // boost to lab frame
-  TVector3 bv = lvIn->BoostVector();
+  TLorentzVector parent;
+  parent.SetPtEtaPhiM(mPt, mEta, mPhi, mBW);  // reset VM mass
+  TVector3 bv = parent.BoostVector();
   ep->Boost(bv);
   em->Boost(bv);
   vfill.push_back(ep->Pt());
@@ -79,7 +78,7 @@ void Simulation::doTwoBodyDecay() {
 }
 
 void Simulation::doDalitzDecay() {
-  eeDecayVM(lvIn->M());  // TODO: check input invariant mass
+  eeDecayVM(mass);  // TODO: check input invariant mass
 }
 
 void Simulation::decay() { // decay mode = isTwoBody + 10 * isDalitz

@@ -17,9 +17,11 @@ class Simulation {
 
     std::vector<TRandom3*> rndm;
     double mass;  // hadron mass
+    double mPt;  // hadron pt
+    double mEta;  // hadron eta
+    double mPhi;  // hadron phi
     int mode;  // decay mode
     DatabaseManager* dbm;
-    TLorentzVector* lvIn;
     TLorentzVector* ep;
     TLorentzVector* em;
     Functions* fp;
