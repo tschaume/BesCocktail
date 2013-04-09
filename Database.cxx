@@ -19,6 +19,18 @@ DatabaseManager* DatabaseManager::Instance(const string& d, bool bWrite) {
   return mDbm;
 }
 
+double DatabaseManager::getDecayMass(const string& p) {
+  if ( p == "pion" || p == "eta" ) return 0.;
+  if ( p == "omega" ) return getMass("pion");
+  if ( p == "phi" ) return getMass("eta");
+  return -1.;
+}
+
+double DatabaseManager::getMaxMassBW(const string& p) {
+  double arg = 1./getAlpha() - 1.;
+  return 0.5*getWidth(p)*sqrt(arg) + getMass(p);
+}
+
 void DatabaseManager::writeDb() {
   // particles
   vector<string> prts;

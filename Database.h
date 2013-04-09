@@ -166,12 +166,12 @@ class DatabaseManager {
       return mDB.mDb[p].mhp.count(e);
     }
     void print() { mDB.print(); }
-    double getMass(const string& p) {
-      return this->getDB().mDb[p].m["mass"];
-    }
-    double getDecayMode(const string& p) {
-      return this->getDB().mDb[p].mode["decay"];
-    }
+    double getMass(const string& p) { return getDB().mDb[p].m["mass"]; }
+    double getWidth(const string& p) { return getDB().mDb[p].w["width"]; }
+    double getDecayMode(const string& p) { return getDB().mDb[p].mode["decay"]; }
+    double getAlpha() { return getDB().mHdr["header"].mPars["alpha"].at(0); }
+    double getDecayMass(const string&);
+    double getMaxMassBW(const string&);
 
     // test database
     void writeDb();
