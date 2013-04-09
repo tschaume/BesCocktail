@@ -12,7 +12,7 @@ double Simulation::mMax = 4.;
 Simulation::Simulation(const string& p, const double& e)
 : particle(p), energy(e)
 {
-  for ( int i = 0; i < 4; ++i ) {  // y, phi, phi, cosT
+  for ( int i = 0; i < 5; ++i ) {  // y, phi, phi, cosT, flatPt
     rndm.push_back(new TRandom3());
     rndm.back()->SetSeed(0);
   }
@@ -43,15 +43,17 @@ double Simulation::getEta(const double& pT) {
 }
 
 void Simulation::sampleInput() {
-  double pt = fPt->GetRandom();
-  vfill.push_back(pt);
+  double pt = fPt->GetRandom(); // rndm[4]->Uniform(ptMin, ptMax);
   double eta = getEta(pt);  // random based on uniform y [-1,1]
-  vfill.push_back(eta);
   double phi = rndm[1]->Uniform(0.,Utils::twoPi);  // random phi [0,2pi]
-  vfill.push_back(phi);
-  double m = fM->GetRandom();
-  vfill.push_back(m);
+  double m;
+  do { m = fM->GetRandom(); } while ( m/2. < Utils::emass ); // TODO: attention Dalitz!
   lvIn->SetPtEtaPhiM(pt, eta, phi, m);
+  // fill output vector
+  vfill.push_back(pt);
+  vfill.push_back(eta);
+  vfill.push_back(phi);
+  vfill.push_back(m);
 }
 
 void Simulation::setEeVmCm(const double& mVM) {  // electrons in VM center of mass
@@ -82,7 +84,7 @@ void Simulation::doDalitzDecay() {
 void Simulation::decay() {
   if ( mode == 1 ) return doTwoBodyDecay();
   if ( mode == 10 ) return doDalitzDecay();
-  if ( mode == 11 ) return; // TODO: implement both decay's case
+  if ( mode == 11 ) return doTwoBodyDecay(); // TODO: implement both decay's case
 }
 
 void Simulation::applyMomSmear(TLorentzVector& l) {
@@ -96,6 +98,7 @@ void Simulation::smear() {
   vfill.push_back(ep->Pt());
   applyMomSmear(*em);
   vfill.push_back(em->Pt());
+  vfill.push_back((*em+*ep).M());
 }
 
 Float_t* Simulation::getFillArray() {
