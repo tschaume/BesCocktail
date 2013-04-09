@@ -7,18 +7,22 @@
 double Simulation::ptMin = 0.;
 double Simulation::ptMax = 10.;
 double Simulation::mMin = 2*Utils::emass;
-double Simulation::mMax = 4.;
 
 Simulation::Simulation(const string& p, const double& e)
 : particle(p), energy(e)
 {
+  // random number generators
   for ( int i = 0; i < 5; ++i ) {  // y, phi, phi, cosT, flatPt
     rndm.push_back(new TRandom3());
     rndm.back()->SetSeed(0);
   }
+  // database manager & variables
   dbm = DatabaseManager::Instance();
   mass = dbm->getMass(particle);
   mode = dbm->getDecayMode(particle);
+  mass_dec = dbm->getDecayMass(particle);
+  double mMax = dbm->getMaxMassBW(particle);
+  // e+/e- lorentz vectors
   ep = new TLorentzVector();
   em = new TLorentzVector();
   // init Functions
@@ -31,7 +35,7 @@ Simulation::Simulation(const string& p, const double& e)
   fM->SetNpx(10000);
   fCB = new TF1("fCB", fp, &Functions::CrystalBall2, -1., 1., 0);
   fCB->SetNpx(10000);
-  fKW = new TF1("fKW", fp, &Functions::KrollWada, mMin, mMax, 0);
+  fKW = new TF1("fKW", fp, &Functions::KrollWada, mMin, mass-mass_dec, 0);
   fKW->SetNpx(10000);
 }
 
@@ -63,8 +67,7 @@ void Simulation::eeDecayVM(const double& mVM) {  // electrons in VM center of ma
 
 void Simulation::doTwoBodyDecay() {
   // electrons in VM center of mass
-  double mBW;  // Breit-Wigner mass
-  do { mBW = fM->GetRandom(); } while ( mBW/2. < Utils::emass );
+  double mBW = fM->GetRandom();  // Breit-Wigner mass
   vfill.push_back(mBW);
   eeDecayVM(mBW);
   // boost to lab frame
@@ -78,13 +81,15 @@ void Simulation::doTwoBodyDecay() {
 }
 
 void Simulation::doDalitzDecay() {
-  eeDecayVM(mass);  // TODO: check input invariant mass
+  vfill.push_back(mass);
+  double mll = fKW->GetRandom();  // fKW range = allowed phase space
+  eeDecayVM(mll);
 }
 
 void Simulation::decay() { // decay mode = isTwoBody + 10 * isDalitz
   if ( mode == 1 ) return doTwoBodyDecay();
   if ( mode == 10 ) return doDalitzDecay();
-  if ( mode == 11 ) return doTwoBodyDecay(); // TODO: implement both decay's case
+  if ( mode == 11 ) return doDalitzDecay(); // TODO: implement both decay's case
 }
 
 void Simulation::applyMomSmear(TLorentzVector& l) {

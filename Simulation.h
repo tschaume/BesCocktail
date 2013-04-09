@@ -17,6 +17,7 @@ class Simulation {
 
     std::vector<TRandom3*> rndm;
     double mass;  // hadron mass
+    double mass_dec;  // daughter hadron mass
     double mPt;  // hadron pt
     double mEta;  // hadron eta
     double mPhi;  // hadron phi
@@ -46,7 +47,6 @@ class Simulation {
     static double ptMin;
     static double ptMax;
     static double mMin;
-    static double mMax;
 
     void sampleInput();
     void decay();
