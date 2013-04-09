@@ -28,7 +28,8 @@ Simulation::Simulation(const string& p, const double& e)
   // e+/e-/daughter-hadron lorentz vectors
   ep = new TLorentzVector();
   em = new TLorentzVector();
-  dh = new TLorentzVector();
+  dh = new TLorentzVector();  // denotes decay hadron OR photon
+  dlp = new TLorentzVector();  // denotes decay lepton pair (virtual photon)
   // init Functions
   fp = new Functions(particle, energy);
   fPt = new TF1("fPt", fp, &Functions::MtScaling, ptMin, ptMax, 0);
@@ -82,6 +83,7 @@ void Simulation::hDecayVM(const double& mll) { // daughter hadron in parent VM c
   double pT, eta, phi;
   twoBodyKinematics(p, pT, eta, phi);
   dh->SetPtEtaPhiM(pT, eta, phi, mass_dec);
+  dlp->SetPtEtaPhiM(pT, -eta, phi+TMath::Pi(), mll);
 }
 
 void Simulation::doTwoBodyDecay() {
@@ -104,9 +106,21 @@ void Simulation::doDalitzDecay() {
   vfill.push_back(mass);
   double mll = fKW->GetRandom();  // fKW range = allowed phase space
   eeDecayVM(mll);  // ee decay the virtual photon
+  hDecayVM(mll);  // daughter hadron kinematics
+  // boost e+/e- into lepton pair (virtual photon) frame (dlp)
+  TVector3 bv1 = dlp->BoostVector();
+  ep->Boost(bv1);
+  em->Boost(bv1);
+  // boost all decay products into parent lab frame
+  TLorentzVector parent;
+  parent.SetPtEtaPhiM(mPt, mEta, mPhi, mass);
+  TVector3 bv2 = parent.BoostVector();
+  ep->Boost(bv2);
+  em->Boost(bv2);
+  dh->Boost(bv2);
+  // fill output
   vfill.push_back(ep->Pt());
   vfill.push_back(em->Pt());
-  hDecayVM(mll);  // daughter hadron kinematics
   vfill.push_back(dh->Pt());
 }
 

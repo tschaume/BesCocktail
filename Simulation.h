@@ -26,6 +26,7 @@ class Simulation {
     TLorentzVector* ep;
     TLorentzVector* em;
     TLorentzVector* dh;
+    TLorentzVector* dlp;
     Functions* fp;
     TF1* fPt;  // input pt distribution
     TF1* fM;  // input mass distribution
