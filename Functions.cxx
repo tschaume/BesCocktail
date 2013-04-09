@@ -15,8 +15,7 @@ Functions::Functions(const std::string& p, const double& e)
   l2 = dbm->getDB().mDb[particle].l2["l2"];
   isPhiOm = ( particle == "phi" || particle == "omega" );
   mh = dbm->getMass(particle);
-  mhdec = dbm->getMass("eta");
-  if ( particle == "omega" ) mhdec = dbm->getMass("omega");
+  mhdec = dbm->getDecayMass(particle);
 }
 
 double Functions::HagedornPower(const double& x) {
@@ -59,31 +58,34 @@ double Functions::CrystalBall2(double* x, double* p) {  // both power law tails
   return exp(-0.5*arg*arg);  // gaussian part
 }
 
-double Functions::QED(const double& x) {
-  const double x2 = x*x;
+double Functions::QED(const double& q) {
+  const double x2 = q*q;
   const double r = Utils::emass2/x2;
   const double A = sqrt(1.-4.*r)*(1.+2.*r);
   return fsfac * Utils::alpha / Utils::threePi * A/x2;
 }
 
-double Functions::PhiOmPS(const double& x) {
+double Functions::PhiOmPS(const double& q) {
   double m2d = mh*mh - mhdec*mhdec;
-  double tA = 1. + x*x / m2d; tA *= tA;
-  double tB = 2*mh*x / m2d; tB *= tB;
-  return pow(tA-tB, 1.5);
+  double tA = 1. + q*q / m2d; tA *= tA;
+  double tB = 2*mh*q / m2d; tB *= tB;
+  return sqrt(pow(tA-tB, 3));
 }
 
-double Functions::PS(const double& x) {
-  if ( isPhiOm ) return PhiOmPS(x);
-  return pow(1.-x*x/(mh*mh), 3);
+double Functions::PS(const double& q) {
+  double ps = -1.;
+  if ( isPhiOm ) ps = PhiOmPS(q);
+  else ps = pow(1.-q*q/(mh*mh), 3);
+  return ps;
 }
 
-double Functions::F2(const double& x) {
+double Functions::F2(const double& q) {
   // TODO: use 1+(m/l)^2 for pion!?
-  double base = 1. - x*x * l2;
-  return 1. / (base*base);
+  double base = 1.-q*q*l2;
+  return 1./(base*base);
 }
 
 double Functions::KrollWada(double* x, double* p) {
-  return F2(x[0]) * QED(x[0]) * PS(x[0]);
+  double mee = x[0];
+  return F2(mee) * QED(mee) * PS(mee);
 }
