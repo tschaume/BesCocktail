@@ -47,15 +47,19 @@ bool CmdLine::parse(int argc, char *argv[]) {
     dbm = DatabaseManager::Instance(dbfile);
 
     // check particle
-    if ( particle.empty() || !dbm->checkParticle(particle) ) {
-      cout << "particle " << particle << " not in database" << endl;
-      return false;
+    if ( particle != "ana" ) {
+      if ( particle.empty() || !dbm->checkParticle(particle) ) {
+        cout << "particle " << particle << " not in database" << endl;
+        return false;
+      }
+      // check energy
+      if ( !dbm->checkEnergy(particle, energy) ) {
+        cout << "energy " << energy << " not in database" << endl;
+        return false;
+      }
     }
-
-    // check energy
-    if ( !dbm->checkEnergy(particle, energy) ) {
-      cout << "energy " << energy << " not in database" << endl;
-      return false;
+    else {
+      cout << "analysis mode" << endl;
     }
 
     return true;

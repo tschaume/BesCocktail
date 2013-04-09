@@ -9,6 +9,7 @@
 #include "StRoot/BesCocktail/Functions.h"
 #include "StRoot/BesCocktail/Utils.h"
 #include "StRoot/BesCocktail/Simulation.h"
+#include "StRoot/BesCocktail/Analysis.h"
 
 int main(int argc, char **argv) {
   try {
@@ -17,32 +18,36 @@ int main(int argc, char **argv) {
     if ( !clopts->parse(argc, argv) ) return 0;
     clopts->print();
 
-    // init Simulation, outfile & ntuple
-    // inits functions and random generators, too
-    Simulation* sim = new Simulation(clopts->particle, clopts->energy);  
+    if ( clopts->particle != "ana" ) {  // simulation mode
+      // init Simulation, inits functions and random generators, too
+      Simulation* sim = new Simulation(clopts->particle, clopts->energy);  
 
-    // init output
-    TFile* fout = new TFile(Utils::getOutFileName(clopts->particle), "recreate");
-    const char* nt_name = clopts->particle.c_str();
-    const char* nt_vars = "ptVM:etaVM:phiVM:mVM:ptEp:ptEm:ptDh:eeMass:ptEpR:ptEmR:eeMassR";
-    TNtuple* nt = new TNtuple(nt_name, nt_name, nt_vars, 0);
+      // init output
+      TFile* fout = new TFile(Utils::getOutFileName(clopts->particle), "recreate");
+      const char* nt_name = clopts->particle.c_str();
+      const char* nt_vars = "ptVM:etaVM:phiVM:mVM:ptEp:ptEm:ptDh:eeMass:ptEpR:ptEmR:eeMassR";
+      TNtuple* nt = new TNtuple(nt_name, nt_name, nt_vars, 0);
 
-    // start loop
-    for ( int n = 0; n < clopts->ndecays; ++n ) {
-      Utils::printInfo(n);
-      // init
-      sim->sampleInput();
-      // decay
-      sim->decay();
-      // smear decay particle momenta
-      sim->smear();
-      // fill output
-      nt->Fill(sim->getFillArray());
+      // start loop
+      for ( int n = 0; n < clopts->ndecays; ++n ) {
+        Utils::printInfo(n);
+        // init
+        sim->sampleInput();
+        // decay
+        sim->decay();
+        // smear decay particle momenta
+        sim->smear();
+        // fill output
+        nt->Fill(sim->getFillArray());
+      }
+
+      // finish up
+      nt->Write();
+      fout->Close();
     }
-
-    // finish up
-    nt->Write();
-    fout->Close();
+    else {  // analysis mode
+      Analysis* ana = new Analysis(clopts->energy);
+    }
   }
   catch(const std::exception& e) {
     std::cerr << "Unhandled Exception: " << e.what() << std::endl;
