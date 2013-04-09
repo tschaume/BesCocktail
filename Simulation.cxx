@@ -53,13 +53,9 @@ double Simulation::getEta(const double& pT) {
 }
 
 void Simulation::sampleInput() {
-  double mPt = fPt->GetRandom(); // rndm[0]->Uniform(ptMin, ptMax);
-  double mEta = getEta(mPt);  // random based on uniform y [-1,1]
-  double mPhi = rndm[2]->Uniform(0., Utils::twoPi);  // random phi [0,2pi]
-  // fill output vector
-  vfill.push_back(mPt);
-  vfill.push_back(mEta);
-  vfill.push_back(mPhi);
+  mPt = fPt->GetRandom(); // rndm[0]->Uniform(ptMin, ptMax);
+  mEta = getEta(mPt);  // random based on uniform y [-1,1]
+  mPhi = rndm[2]->Uniform(0., Utils::twoPi);  // random phi [0,2pi]
 }
 
 void Simulation::twoBodyKinematics(const double& p, double& pT, double& eta, double& phi) {
@@ -99,9 +95,6 @@ void Simulation::doTwoBodyDecay() {
   TVector3 bv = parent.BoostVector();
   ep->Boost(bv);
   em->Boost(bv);
-  vfill.push_back(ep->Pt());
-  vfill.push_back(em->Pt());
-  vfill.push_back(dh->Pt());  // no use
 }
 
 void Simulation::doDalitzDecay() {
@@ -120,19 +113,26 @@ void Simulation::doDalitzDecay() {
   ep->Boost(bv2);
   em->Boost(bv2);
   dh->Boost(bv2);
-  // fill output
-  vfill.push_back(ep->Pt());
-  vfill.push_back(em->Pt());
-  vfill.push_back(dh->Pt());
 }
 
 void Simulation::decay() { // decay mode = isTwoBody + 10 * isDalitz
-  if ( mode == 1 ) return doTwoBodyDecay();
-  if ( mode == 10 ) return doDalitzDecay();
-  if ( mode == 11 ) {
-    if ( rndm[7]->Rndm() < mBR ) return doDalitzDecay();
-    else return doTwoBodyDecay();
+  vfill.push_back(mPt);
+  vfill.push_back(mEta);
+  vfill.push_back(mPhi);
+  switch (mode) {
+  case 1:
+    doTwoBodyDecay(); break;
+  case 10:
+    doDalitzDecay(); break;
+  case 11:
+    if ( rndm[7]->Rndm() < mBR ) doDalitzDecay();
+    else doTwoBodyDecay();
+  default: break;
   }
+  vfill.push_back(ep->Pt());
+  vfill.push_back(em->Pt());
+  vfill.push_back(dh->Pt());
+  vfill.push_back((*em+*ep).M());
 }
 
 void Simulation::applyMomSmear(TLorentzVector& l) {
@@ -143,8 +143,8 @@ void Simulation::applyMomSmear(TLorentzVector& l) {
 
 void Simulation::smear() {
   applyMomSmear(*ep);
-  vfill.push_back(ep->Pt());
   applyMomSmear(*em);
+  vfill.push_back(ep->Pt());
   vfill.push_back(em->Pt());
   vfill.push_back((*em+*ep).M());
 }
