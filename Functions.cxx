@@ -87,5 +87,5 @@ double Functions::F2(const double& q) {
 
 double Functions::KrollWada(double* x, double* p) {
   double mee = x[0];
-  return F2(mee) * QED(mee) * PS(mee);
+  return 2.*mee * F2(mee) * QED(mee) * PS(mee);
 }
