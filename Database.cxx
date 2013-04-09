@@ -31,6 +31,12 @@ double DatabaseManager::getMaxMassBW(const string& p) {
   return 0.5*getWidth(p)*sqrt(arg) + getMass(p);
 }
 
+double DatabaseManager::getRatioBR(const string& p) { // dalitz / (ee + dalitz)
+  double br_ee = getDB().mDb[p].mbr["br"].at(0);
+  double br_da = getDB().mDb[p].mbr["br"].at(1);
+  return br_da/(br_ee+br_da);
+}
+
 void DatabaseManager::writeDb() {
   // particles
   vector<string> prts;

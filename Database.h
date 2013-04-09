@@ -25,6 +25,7 @@ struct Particle {
   map<string, double> fsfac; // final state factor
   map<string, double> l2; // Lambda^(-2)
   map<string, int> mode; // decay mode
+  map<string, vector<double> > mbr; // branching ratios [e+e-, dalitz]
   map<double, vector<double> > mhp; // energy, [A, a, b, p0, n]
   bool operator==(const Particle& prt) const {
     //BOOST_FOREACH(string s, m | ad::map_keys) {
@@ -57,6 +58,9 @@ struct Particle {
       BOOST_FOREACH(double p, mhp[e]) { cout << " " << p; }
       cout << " ]" << endl;
     }
+    cout << "br: [";
+    BOOST_FOREACH(double p, mbr["br"]) { cout << " " << p; }
+    cout << " ]" << endl;
   }
 };
 
@@ -69,6 +73,7 @@ namespace YAML {
       node.push_back(prt.fsfac);
       node.push_back(prt.l2);
       node.push_back(prt.mode);
+      node.push_back(prt.mbr);
       node.push_back(prt.mhp);
       return node;
     }
@@ -79,7 +84,8 @@ namespace YAML {
       prt.fsfac = node[2].as< map<string, double> >();
       prt.l2 = node[3].as< map<string, double> >();
       prt.mode = node[4].as< map<string, int> >();
-      prt.mhp = node[5].as< map< double, vector<double> > >();
+      prt.mbr = node[5].as< map< string, vector<double> > >();
+      prt.mhp = node[6].as< map< double, vector<double> > >();
       return true;
     }
   };
@@ -172,6 +178,7 @@ class DatabaseManager {
     double getAlpha() { return getDB().mHdr["header"].mPars["alpha"].at(0); }
     double getDecayMass(const string&);
     double getMaxMassBW(const string&);
+    double getRatioBR(const string&);
 
     // test database
     void writeDb();
