@@ -35,7 +35,7 @@ class Simulation {
     void applyMomSmear(TLorentzVector&);
     void doTwoBodyDecay();
     void doDalitzDecay();
-    void setEeVmCm(const double&);
+    void eeDecayVM(const double&);
 
   public:
     Simulation(const std::string&, const double&);

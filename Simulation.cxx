@@ -45,18 +45,15 @@ double Simulation::getEta(const double& pT) {
 void Simulation::sampleInput() {
   double pt = fPt->GetRandom(); // rndm[4]->Uniform(ptMin, ptMax);
   double eta = getEta(pt);  // random based on uniform y [-1,1]
-  double phi = rndm[1]->Uniform(0.,Utils::twoPi);  // random phi [0,2pi]
-  double m;
-  do { m = fM->GetRandom(); } while ( m/2. < Utils::emass ); // TODO: attention Dalitz!
-  lvIn->SetPtEtaPhiM(pt, eta, phi, m);
+  double phi = rndm[1]->Uniform(0., Utils::twoPi);  // random phi [0,2pi]
+  lvIn->SetPtEtaPhiM(pt, eta, phi, mass);
   // fill output vector
   vfill.push_back(pt);
   vfill.push_back(eta);
   vfill.push_back(phi);
-  vfill.push_back(m);
 }
 
-void Simulation::setEeVmCm(const double& mVM) {  // electrons in VM center of mass
+void Simulation::eeDecayVM(const double& mVM) {  // electrons in VM center of mass
   double p = sqrt(mVM*mVM/4.-Utils::emass2);  // electron momentum
   double phi = rndm[2]->Uniform(0.,Utils::twoPi);  // random electron phi
   double pz = p*rndm[3]->Uniform(-1.,1.);  // electron pz, random cos(theta)
@@ -68,7 +65,11 @@ void Simulation::setEeVmCm(const double& mVM) {  // electrons in VM center of ma
 
 void Simulation::doTwoBodyDecay() {
   // electrons in VM center of mass
-  setEeVmCm(lvIn->M());
+  double m;
+  do { m = fM->GetRandom(); } while ( m/2. < Utils::emass );
+  lvIn->SetPtEtaPhiM(lvIn->Pt(), lvIn->Eta(), lvIn->Phi(), m);  // reset VM mass
+  vfill.push_back(m);
+  eeDecayVM(m);
   // boost to lab frame
   TVector3 bv = lvIn->BoostVector();
   ep->Boost(bv);
@@ -78,10 +79,10 @@ void Simulation::doTwoBodyDecay() {
 }
 
 void Simulation::doDalitzDecay() {
-  setEeVmCm(lvIn->M());  // TODO: check input invariant mass
+  eeDecayVM(lvIn->M());  // TODO: check input invariant mass
 }
 
-void Simulation::decay() {
+void Simulation::decay() { // decay mode = isTwoBody + 10 * isDalitz
   if ( mode == 1 ) return doTwoBodyDecay();
   if ( mode == 10 ) return doDalitzDecay();
   if ( mode == 11 ) return doTwoBodyDecay(); // TODO: implement both decay's case
