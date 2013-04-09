@@ -11,8 +11,11 @@ double Simulation::mMin = 2*Utils::emass;
 Simulation::Simulation(const string& p, const double& e)
 : particle(p), energy(e)
 {
-  // random number generators
-  for ( int i = 0; i < 5; ++i ) {  // y, phi, phi, cosT, flatPt
+  // random number generators:
+  // parent-flatPt, parent-y, parent-phi [0, 1, 2]
+  // ee: daughter-phi, daughter-cosT [3, 4]
+  // dh: daughter-phi, daughter-cosT [5, 6]
+  for ( int i = 0; i < 7; ++i ) {
     rndm.push_back(new TRandom3());
     rndm.back()->SetSeed(0);
   }
@@ -22,9 +25,10 @@ Simulation::Simulation(const string& p, const double& e)
   mode = dbm->getDecayMode(particle);
   mass_dec = dbm->getDecayMass(particle);
   double mMax = dbm->getMaxMassBW(particle);
-  // e+/e- lorentz vectors
+  // e+/e-/daughter-hadron lorentz vectors
   ep = new TLorentzVector();
   em = new TLorentzVector();
+  dh = new TLorentzVector();
   // init Functions
   fp = new Functions(particle, energy);
   fPt = new TF1("fPt", fp, &Functions::MtScaling, ptMin, ptMax, 0);
@@ -41,35 +45,50 @@ Simulation::Simulation(const string& p, const double& e)
 
 double Simulation::getEta(const double& pT) {
   double mT = sqrt(mass*mass+pT*pT);
-  double y = rndm[0]->Uniform(-1.,1.);
+  double y = rndm[1]->Uniform(-1.,1.);
   return asinh(mT/pT*sinh(y));
 }
 
 void Simulation::sampleInput() {
-  double mPt = fPt->GetRandom(); // rndm[4]->Uniform(ptMin, ptMax);
+  double mPt = fPt->GetRandom(); // rndm[0]->Uniform(ptMin, ptMax);
   double mEta = getEta(mPt);  // random based on uniform y [-1,1]
-  double mPhi = rndm[1]->Uniform(0., Utils::twoPi);  // random phi [0,2pi]
+  double mPhi = rndm[2]->Uniform(0., Utils::twoPi);  // random phi [0,2pi]
   // fill output vector
   vfill.push_back(mPt);
   vfill.push_back(mEta);
   vfill.push_back(mPhi);
 }
 
+void Simulation::twoBodyKinematics(const double& p, double& pT, double& eta, double& phi) {
+  double pz = p*rndm[3+2*isDhKin+1]->Uniform(-1., 1.);  // daughter pz, random cos(theta)
+  pT = sqrt(p*p-pz*pz);  // daughter pT
+  eta = 0.5*log((p+pz)/(p-pz)); // daughter eta
+  phi = rndm[3+2*isDhKin]->Uniform(0., Utils::twoPi);  // random daughter phi
+}
+
 void Simulation::eeDecayVM(const double& mVM) {  // electrons in VM center of mass
   double p = sqrt(mVM*mVM/4.-Utils::emass2);  // electron momentum
-  double phi = rndm[2]->Uniform(0.,Utils::twoPi);  // random electron phi
-  double pz = p*rndm[3]->Uniform(-1.,1.);  // electron pz, random cos(theta)
-  double pT = sqrt(p*p-pz*pz);  // electron pT
-  double eta = 0.5*log((p+pz)/(p-pz)); // electron eta
+  isDhKin = false;
+  double pT, eta, phi;
+  twoBodyKinematics(p, pT, eta, phi);
   ep->SetPtEtaPhiM(pT, eta, phi, Utils::emass);
   em->SetPtEtaPhiM(pT, -eta, phi+TMath::Pi(), Utils::emass);
+}
+
+void Simulation::hDecayVM(const double& mll) { // daughter hadron in parent VM center of mass
+  double e = (mass*mass + mass_dec*mass_dec - mll*mll)/2./mass;  // daughter hadron energy
+  double p = sqrt(e*e-mass_dec*mass_dec);  // daughter hadron momentum
+  isDhKin = true;
+  double pT, eta, phi;
+  twoBodyKinematics(p, pT, eta, phi);
+  dh->SetPtEtaPhiM(pT, eta, phi, mass_dec);
 }
 
 void Simulation::doTwoBodyDecay() {
   // electrons in VM center of mass
   double mBW = fM->GetRandom();  // Breit-Wigner mass
   vfill.push_back(mBW);
-  eeDecayVM(mBW);
+  eeDecayVM(mBW);  // ee decay the vector meson
   // boost to lab frame
   TLorentzVector parent;
   parent.SetPtEtaPhiM(mPt, mEta, mPhi, mBW);  // reset VM mass
@@ -78,12 +97,17 @@ void Simulation::doTwoBodyDecay() {
   em->Boost(bv);
   vfill.push_back(ep->Pt());
   vfill.push_back(em->Pt());
+  vfill.push_back(dh->Pt());  // no use
 }
 
 void Simulation::doDalitzDecay() {
   vfill.push_back(mass);
   double mll = fKW->GetRandom();  // fKW range = allowed phase space
-  eeDecayVM(mll);
+  eeDecayVM(mll);  // ee decay the virtual photon
+  vfill.push_back(ep->Pt());
+  vfill.push_back(em->Pt());
+  hDecayVM(mll);  // daughter hadron kinematics
+  vfill.push_back(dh->Pt());
 }
 
 void Simulation::decay() { // decay mode = isTwoBody + 10 * isDalitz

@@ -25,6 +25,7 @@ class Simulation {
     DatabaseManager* dbm;
     TLorentzVector* ep;
     TLorentzVector* em;
+    TLorentzVector* dh;
     Functions* fp;
     TF1* fPt;  // input pt distribution
     TF1* fM;  // input mass distribution
@@ -33,12 +34,15 @@ class Simulation {
     TF1* fKW;  // KrollWada for dalitz decays
     std::vector<double> vfill;
     Float_t* afill;
+    bool isDhKin;  // flag true if decay hadron kinematics
 
     double getEta(const double&);
     void applyMomSmear(TLorentzVector&);
     void doTwoBodyDecay();
     void doDalitzDecay();
+    void twoBodyKinematics(const double&, double&, double&, double&);
     void eeDecayVM(const double&);
+    void hDecayVM(const double&);
 
   public:
     Simulation(const std::string&, const double&);

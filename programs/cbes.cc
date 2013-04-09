@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     // init output
     TFile* fout = new TFile(Utils::getOutFileName(clopts->particle), "recreate");
     const char* nt_name = clopts->particle.c_str();
-    const char* nt_vars = "ptM:etaM:phiM:mM:ptEp:ptEm:ptEpR:ptEmR:invMass";
+    const char* nt_vars = "ptM:etaM:phiM:mM:ptEp:ptEm:ptDh:ptEpR:ptEmR:invMass";
     TNtuple* nt = new TNtuple(nt_name, nt_name, nt_vars, 0);
 
     // start loop
