@@ -15,7 +15,8 @@ Simulation::Simulation(const string& p, const double& e)
   // parent-flatPt, parent-y, parent-phi [0, 1, 2]
   // ee: daughter-phi, daughter-cosT [3, 4]
   // dh: daughter-phi, daughter-cosT [5, 6]
-  for ( int i = 0; i < 7; ++i ) {
+  // ratio of branching ratios [7]
+  for ( int i = 0; i < 8; ++i ) {
     rndm.push_back(new TRandom3());
     rndm.back()->SetSeed(0);
   }
@@ -25,6 +26,7 @@ Simulation::Simulation(const string& p, const double& e)
   mode = dbm->getDecayMode(particle);
   mass_dec = dbm->getDecayMass(particle);
   double mMax = dbm->getMaxMassBW(particle);
+  mBR = dbm->getRatioBR(particle);  // dalitz br / total br
   // e+/e-/daughter-hadron lorentz vectors
   ep = new TLorentzVector();
   em = new TLorentzVector();
@@ -127,7 +129,10 @@ void Simulation::doDalitzDecay() {
 void Simulation::decay() { // decay mode = isTwoBody + 10 * isDalitz
   if ( mode == 1 ) return doTwoBodyDecay();
   if ( mode == 10 ) return doDalitzDecay();
-  if ( mode == 11 ) return doDalitzDecay(); // TODO: implement both decay's case
+  if ( mode == 11 ) {
+    if ( rndm[7]->Rndm() < mBR ) return doDalitzDecay();
+    else return doTwoBodyDecay();
+  }
 }
 
 void Simulation::applyMomSmear(TLorentzVector& l) {
