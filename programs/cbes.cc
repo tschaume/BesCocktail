@@ -23,9 +23,13 @@ int main(int argc, char **argv) {
       Simulation* sim = new Simulation(clopts->particle, clopts->energy);  
 
       // init output
-      TFile* fout = new TFile(Utils::getOutFileName(clopts->particle, clopts->energy), "recreate");
+      const char* fn = Utils::getOutFileName(clopts->particle, clopts->energy);
+      TFile* fout = new TFile(fn, "recreate");
       const char* nt_name = clopts->particle.c_str();
-      const char* nt_vars = "ptVM:etaVM:phiVM:mVM:ptEp:ptEm:ptDh:eeMass:ptEpR:ptEmR:eeMassR";
+      const char* nt_vars =
+        "ptVM:etaVM:phiVM:mVM:"
+        "ptEp:ptEm:ptDh:etaEp:etaEm:eeMass:eeRap"
+        "ptEpR:ptEmR:ptDhR:etaEpR:etaEmR:eeMassR:eeRapR";
       TNtuple* nt = new TNtuple(nt_name, nt_name, nt_vars, 0);
 
       // start loop

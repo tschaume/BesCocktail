@@ -45,6 +45,7 @@ class Simulation {
     void twoBodyKinematics(const double&, double&, double&, double&);
     void eeDecayVM(const double&);
     void hDecayVM(const double&);
+    void pushNtVars();
 
   public:
     Simulation(const std::string&, const double&);

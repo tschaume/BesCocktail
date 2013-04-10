@@ -129,10 +129,7 @@ void Simulation::decay() { // decay mode = isTwoBody + 10 * isDalitz
     else doTwoBodyDecay();
   default: break;
   }
-  vfill.push_back(ep->Pt());
-  vfill.push_back(em->Pt());
-  vfill.push_back(dh->Pt());
-  vfill.push_back((*em+*ep).M());
+  pushNtVars();
 }
 
 void Simulation::applyMomSmear(TLorentzVector& l) {
@@ -144,9 +141,18 @@ void Simulation::applyMomSmear(TLorentzVector& l) {
 void Simulation::smear() {
   applyMomSmear(*ep);
   applyMomSmear(*em);
+  applyMomSmear(*dh);
+  pushNtVars();
+}
+
+void Simulation::pushNtVars() {
   vfill.push_back(ep->Pt());
   vfill.push_back(em->Pt());
+  vfill.push_back(dh->Pt());
+  vfill.push_back(ep->Eta());
+  vfill.push_back(em->Eta());
   vfill.push_back((*em+*ep).M());
+  vfill.push_back((*em+*ep).Rapidity());
 }
 
 Float_t* Simulation::getFillArray() {
