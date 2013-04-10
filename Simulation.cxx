@@ -141,14 +141,15 @@ void Simulation::applyMomSmear(TLorentzVector& l) {
 void Simulation::smear() {
   applyMomSmear(*ep);
   applyMomSmear(*em);
-  applyMomSmear(*dh);
+  if ( isDhKin ) applyMomSmear(*dh);
   pushNtVars();
 }
 
 void Simulation::pushNtVars() {
   vfill.push_back(ep->Pt());
   vfill.push_back(em->Pt());
-  vfill.push_back(dh->Pt());
+  if ( isDhKin ) vfill.push_back(dh->Pt());
+  else vfill.push_back(-999.);
   vfill.push_back(ep->Eta());
   vfill.push_back(em->Eta());
   vfill.push_back((*em+*ep).M());
