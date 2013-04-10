@@ -21,18 +21,14 @@ namespace ad = boost::adaptors;
 
 struct Particle {
   map<string, double> mpr;  // properties
-  // mass (GeV/c2), width (GeV/c2), final state factor, Lambda^(-2), decay mode
-  // mass, width, fsfac, l2, decay
-  map<string, vector<double> > mbr; // branching ratios [e+e-, dalitz]
+  // mass (GeV/c2), width (GeV/c2), final state factor, Lambda^(-2), decay mode, BR's
+  // mass, width, fsfac, l2, decay, br_ee, br_da
   map<double, vector<double> > mhp; // energy, [A, a, b, p0, n]
   bool operator==(const Particle& prt) const { return true; }
   void print() {
     BOOST_FOREACH(string k, mpr | ad::map_keys) {
       cout << k << ": " << mpr[k] << endl;
     }
-    cout << "br: [";
-    BOOST_FOREACH(double p, mbr["br"]) { cout << " " << p; }
-    cout << " ]" << endl;
     BOOST_FOREACH(double e, mhp | ad::map_keys) {
       cout << e << ": [";
       BOOST_FOREACH(double p, mhp[e]) { cout << " " << p; }
@@ -46,15 +42,13 @@ namespace YAML {
     static Node encode(const Particle& prt) {
       Node node;
       node.push_back(prt.mpr);
-      node.push_back(prt.mbr);
       node.push_back(prt.mhp);
       return node;
     }
     static bool decode(const Node& node, Particle& prt) {
       if (!node.IsSequence()) return false;
       prt.mpr = node[0].as< map<string, double> >();
-      prt.mbr = node[1].as< map<string, vector<double> > >();
-      prt.mhp = node[2].as< map<double, vector<double> > >();
+      prt.mhp = node[1].as< map<double, vector<double> > >();
       return true;
     }
   };
@@ -135,9 +129,11 @@ class DatabaseManager {
       return mDB.mDb[p].mhp.count(e);
     }
     void print() { mDB.print(); }
-    double getMass(const string& p) { return getDB().mDb[p].mpr["mass"]; }
-    double getWidth(const string& p) { return getDB().mDb[p].mpr["width"]; }
-    double getDecayMode(const string& p) { return getDB().mDb[p].mpr["decay"]; }
+
+    double getProperty(const string& p, const string& pr)  {
+      return getDB().mDb[p].mpr[pr];
+    }
+
     double getAlpha() { return getDB().mHdr["header"].mPars["alpha"].at(0); }
     double getDecayMass(const string&);
     double getMaxMassBW(const string&);

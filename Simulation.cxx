@@ -22,8 +22,8 @@ Simulation::Simulation(const string& p, const double& e)
   }
   // database manager & variables
   dbm = DatabaseManager::Instance();
-  mass = dbm->getMass(particle);
-  mode = dbm->getDecayMode(particle);
+  mass = dbm->getProperty(particle, "mass");
+  mode = dbm->getProperty(particle, "decay");
   mass_dec = dbm->getDecayMass(particle);
   double mMax = dbm->getMaxMassBW(particle);
   mBR = dbm->getRatioBR(particle);  // dalitz br / total br

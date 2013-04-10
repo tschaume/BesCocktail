@@ -10,11 +10,11 @@ Functions::Functions(const std::string& p, const double& e)
   vhp = dbm->getDB().mDb[particle].mhp[energy];
   vres = dbm->getDB().mHdr["header"].mPars["res"];
   vcr = dbm->getDB().mHdr["header"].mPars["crystal"];
-  fsfac = dbm->getDB().mDb[particle].mpr["fsfac"];
-  l2 = dbm->getDB().mDb[particle].mpr["l2"];
-  wdth = dbm->getWidth(particle);
+  fsfac = dbm->getProperty(particle, "fsfac");
+  l2 = dbm->getProperty(particle, "l2");
+  wdth = dbm->getProperty(particle, "width");
   isPhiOm = ( particle == "phi" || particle == "omega" );
-  mh = dbm->getMass(particle);
+  mh = dbm->getProperty(particle, "mass");
   mhdec = dbm->getDecayMass(particle);
 }
 

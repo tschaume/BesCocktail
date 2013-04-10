@@ -21,24 +21,26 @@ DatabaseManager* DatabaseManager::Instance(const string& d, bool bWrite) {
 
 double DatabaseManager::getDecayMass(const string& p) {
   if ( p == "pion" || p == "eta" ) return 0.;
-  if ( p == "omega" ) return getMass("pion");
-  if ( p == "phi" ) return getMass("eta");
+  if ( p == "omega" ) return getProperty("pion", "mass");
+  if ( p == "phi" ) return getProperty("eta", "mass");
   return -1.;
 }
 
 double DatabaseManager::getMaxMassBW(const string& p) {
   double arg = 1./getAlpha() - 1.;
-  return 0.5*getWidth(p)*sqrt(arg) + getMass(p);
+  double w = getProperty(p, "width");
+  double m = getProperty(p, "mass");
+  return 0.5*w*sqrt(arg) + m;
 }
 
 double DatabaseManager::getRatioBR(const string& p) { // dalitz / (ee + dalitz)
-  double br_ee = getDB().mDb[p].mbr["br"].at(0);
-  double br_da = getDB().mDb[p].mbr["br"].at(1);
+  double br_ee = getProperty(p, "br_ee");
+  double br_da = getProperty(p, "br_da");
   return br_da/(br_ee+br_da);
 }
 
-double DatabaseManager::getSumBR(const string& p) { // dalitz / (ee + dalitz)
-  double br_ee = getDB().mDb[p].mbr["br"].at(0);
-  double br_da = getDB().mDb[p].mbr["br"].at(1);
+double DatabaseManager::getSumBR(const string& p) { // ee + dalitz
+  double br_ee = getProperty(p, "br_ee");
+  double br_da = getProperty(p, "br_da");
   return br_ee+br_da;
 }
