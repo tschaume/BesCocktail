@@ -72,6 +72,7 @@ bool CmdLine::parse(int argc, char *argv[]) {
 }
 
 void CmdLine::print() {
+  cout << endl;
   cout << "particle  : " << particle << endl;
   cout << "#decays   : " << ndecays << endl;
   if ( bVerbose ) dbm->print();
