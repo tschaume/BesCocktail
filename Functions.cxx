@@ -8,8 +8,8 @@ Functions::Functions(const std::string& p, const double& e)
 : particle(p), energy(e) {
   dbm = DatabaseManager::Instance();
   vhp = dbm->getDB().mDb[particle].mhp[energy];
-  vres = dbm->getDB().mHdr["header"].mPars["res"];
-  vcr = dbm->getDB().mHdr["header"].mPars["crystal"];
+  vres = dbm->getHdrVar("res");
+  vcr = dbm->getHdrVar("crystal");
   fsfac = dbm->getProperty(particle, "fsfac");
   l2 = dbm->getProperty(particle, "l2");
   wdth = dbm->getProperty(particle, "width");

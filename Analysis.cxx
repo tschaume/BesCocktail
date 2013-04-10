@@ -14,9 +14,10 @@ namespace ad = boost::adaptors;
 Analysis::Analysis(const double& e) : energy(e) {
   // database manager & variables
   dbm = DatabaseManager::Instance();
-  mPtTrCut = dbm->getDB().mHdr["header"].mPars["cuts"].at(0);
-  mEtaTrCut = dbm->getDB().mHdr["header"].mPars["cuts"].at(1);
-  mRapPairCut = dbm->getDB().mHdr["header"].mPars["cuts"].at(2);
+  vector<double> vcuts = dbm->getHdrVar("cuts");
+  mPtTrCut = vcuts[0];
+  mEtaTrCut = vcuts[1];
+  mRapPairCut = vcuts[2];
 }
 
 bool Analysis::passTrackCuts(const Float_t& pt, const Float_t& eta) {

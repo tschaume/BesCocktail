@@ -27,12 +27,12 @@ struct Particle {
   bool operator==(const Particle& prt) const { return true; }
   void print() {
     BOOST_FOREACH(string k, mpr | ad::map_keys) {
-      cout << k << ": " << mpr[k] << endl;
+      cout << "  " << k << ": " << mpr[k] << endl;
     }
     BOOST_FOREACH(double e, mhp | ad::map_keys) {
-      cout << e << ": [";
+      cout << "  " << e << ":";
       BOOST_FOREACH(double p, mhp[e]) { cout << " " << p; }
-      cout << " ]" << endl;
+      cout << endl;
     }
   }
 };
@@ -54,42 +54,21 @@ namespace YAML {
   };
 }
 
-struct DbHeader {
-  map<string, vector<double> > mPars;  // general container for parameters
-  bool operator==(const DbHeader& dbh) const { return true; }
-  void print() {
-    BOOST_FOREACH(string s, mPars | ad::map_keys) {
-      BOOST_FOREACH(double p, mPars[s]) { cout << p << " " << std::flush; }
-      cout << endl;
-    }
-  }
-};
-
-namespace YAML {
-  template<> struct convert<DbHeader> {
-    static Node encode(const DbHeader& dbh) {
-      Node node;
-      node.push_back(dbh.mPars);
-      return node;
-    }
-    static bool decode(const Node& node, DbHeader& dbh) {
-      if (!node.IsSequence()) return false;
-      dbh.mPars = node[0].as< map<string, vector<double> > >();
-      return true;
-    }
-  };
-}
-
 struct Database {
-  map<string, DbHeader > mHdr;
+  map<string, vector<double> > mHdr;
   map<string, Particle> mDb;
   bool operator==(const Database& db) const { return true; }
   void print() {
-    BOOST_FOREACH(string s, mDb | ad::map_keys) {
-      cout << s << endl; mDb[s].print();
-    }
+    cout << "=== Header ===" << endl;
     BOOST_FOREACH(string s, mHdr | ad::map_keys) {
-      cout << s << endl; mHdr[s].print();
+      cout << "  " << s << ": ";
+      BOOST_FOREACH(double p, mHdr[s]) { cout << p << " " << std::flush; }
+      cout << endl;
+    }
+    cout << "=== Particles ===" << endl;
+    BOOST_FOREACH(string s, mDb | ad::map_keys) {
+      cout << s << endl; cout << "-----------" << endl;
+      mDb[s].print();
     }
   }
 };
@@ -104,7 +83,7 @@ namespace YAML {
     }
     static bool decode(const Node& node, Database& db) {
       if (!node.IsSequence()) return false;
-      db.mHdr = node[0].as< map<string, DbHeader> >();
+      db.mHdr = node[0].as< map<string, vector<double> > >();
       db.mDb = node[1].as< map<string, Particle> >();
       return true;
     }
@@ -130,11 +109,12 @@ class DatabaseManager {
     }
     void print() { mDB.print(); }
 
-    double getProperty(const string& p, const string& pr)  {
-      return getDB().mDb[p].mpr[pr];
+    double getProperty(const string& p, const string& pr) {
+      return mDB.mDb[p].mpr[pr];
     }
+    vector<double> getHdrVar(const string& var) { return mDB.mHdr[var]; }
 
-    double getAlpha() { return getDB().mHdr["header"].mPars["alpha"].at(0); }
+    double getAlpha() { return getHdrVar("alpha").at(0); }
     double getDecayMass(const string&);
     double getMaxMassBW(const string&);
     double getRatioBR(const string&);
