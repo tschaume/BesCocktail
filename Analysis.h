@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <TH1D.h>
+#include <TTree.h>
 #include "StRoot/BesCocktail/Database.h"
 
 using std::string;
@@ -16,6 +17,19 @@ class Analysis {
     double energy;
     DatabaseManager* dbm;
     map<string, TH1D*> mhMee;
+    double mPtTrCut;
+    double mEtaTrCut;
+    double mRapPairCut;
+    Float_t Mee;
+    Float_t ep_pt;
+    Float_t ep_eta;
+    Float_t em_pt;
+    Float_t em_eta;
+    Float_t ee_rap;
+
+    void setBranchAddresses(TTree*);
+    bool passTrackCuts(const Float_t&, const Float_t&);
+    bool passCuts();
 
   public:
     Analysis(const double&);  // energy
