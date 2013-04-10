@@ -1,6 +1,7 @@
 // Copyright (c) 2013 Patrick Huck
 #include "StRoot/BesCocktail/Utils.h"
 #include <iostream>
+#include <boost/lexical_cast.hpp>
 #include <TMath.h>
 
 double Utils::emass = 0.510998928e-3;
@@ -16,6 +17,8 @@ void Utils::printInfo(const int& n) {
   else if ( !(n%10000) ) std::cout << "." << std::flush;
 }
 
-const char* Utils::getOutFileName(const std::string& p) {
-  return (p+".root").c_str();
+const char* Utils::getOutFileName(const std::string& p, const double& e) {
+  std::string fn = "out/";
+  fn += boost::lexical_cast<std::string>(e);
+  return (fn+"/"+p+".root").c_str();
 }

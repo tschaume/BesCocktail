@@ -18,6 +18,6 @@ class Utils {
     static double alpha;
 
     static void printInfo(const int&);
-    static const char* getOutFileName(const std::string&);
+    static const char* getOutFileName(const std::string&, const double&);
 };
 #endif  // STROOT_BESCOCKTAIL_UTILS_H_
