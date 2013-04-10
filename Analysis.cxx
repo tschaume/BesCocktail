@@ -1,11 +1,14 @@
 // Copyright (c) 2013 Patrick Huck
 #include "StRoot/BesCocktail/Analysis.h"
 #include <iostream>
+#include <map>
 #include <boost/foreach.hpp>
 #include <boost/range/adaptor/map.hpp>
+#include <TH1D.h>
 #include <TFile.h>
 #include "StRoot/BesCocktail/Utils.h"
 
+using std::map;
 namespace ad = boost::adaptors;
 
 Analysis::Analysis(const double& e) : energy(e) {
@@ -39,6 +42,7 @@ void Analysis::setBranchAddresses(TTree* t) {
 
 void Analysis::loop() {
   TFile* fout = TFile::Open(Utils::getOutFileName("rawhMee",energy),"recreate");
+  map<string, TH1D*> mhMee;
   BOOST_FOREACH(string p, dbm->getDB().mDb | ad::map_keys) {
     cout << endl << p << endl;
     mhMee[p] = new TH1D(p.c_str(), p.c_str(), 700, 0, 3.5);

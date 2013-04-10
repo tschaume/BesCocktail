@@ -3,20 +3,16 @@
 #define STROOT_BESCOCKTAIL_ANALYSIS_H_
 
 #include <string>
-#include <map>
-#include <TH1D.h>
 #include <TTree.h>
 #include "StRoot/BesCocktail/Database.h"
 
 using std::string;
-using std::map;
 
 class Analysis {
   private:
     string particle;
     double energy;
     DatabaseManager* dbm;
-    map<string, TH1D*> mhMee;
     double mPtTrCut;
     double mEtaTrCut;
     double mRapPairCut;
