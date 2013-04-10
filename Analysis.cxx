@@ -3,7 +3,7 @@
 #include <iostream>
 #include <boost/foreach.hpp>
 #include <boost/range/adaptor/map.hpp>
-#include <TNtuple.h>
+#include <TTree.h>
 #include <TFile.h>
 #include "StRoot/BesCocktail/Utils.h"
 
@@ -15,10 +15,24 @@ Analysis::Analysis(const double& e) : energy(e) {
 }
 
 void Analysis::loop() {
+  TFile* fout = TFile::Open("hMee.root","recreate");
   BOOST_FOREACH(string p, dbm->getDB().mDb | ad::map_keys) {
+    cout << endl << p << endl;
+    mhMee[p] = new TH1D(p.c_str(), p.c_str(), 700, 0, 3.5);
+    mhMee[p]->Sumw2();
     TFile* f = TFile::Open(Utils::getOutFileName(p,energy),"read");
     if ( !f ) return;
-    TNtuple* nt = (TNtuple*)f->Get(p.c_str());
-    cout << nt->GetEntries() << endl;
+    TTree* t = (TTree*)f->Get(p.c_str());
+    Long64_t nentries = t->GetEntries();
+    Float_t Mee;
+    t->SetBranchAddress("eeMassR", &Mee);
+    for ( Long64_t n = 0; n < nentries; ++n ) {
+      Utils::printInfo(n, 1000);
+      t->GetEntry(n);
+      mhMee[p]->Fill(Mee);
+    }
+    fout->cd();
+    mhMee[p]->Write();
   }
+  fout->Close();
 }
