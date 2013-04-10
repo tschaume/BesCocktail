@@ -20,47 +20,24 @@ using std::endl;
 namespace ad = boost::adaptors;
 
 struct Particle {
-  map<string, double> m; // mass in GeV/c2
-  map<string, double> w; // width in GeV/c2
-  map<string, double> fsfac; // final state factor
-  map<string, double> l2; // Lambda^(-2)
-  map<string, int> mode; // decay mode
+  map<string, double> mpr;  // properties
+  // mass (GeV/c2), width (GeV/c2), final state factor, Lambda^(-2), decay mode
+  // mass, width, fsfac, l2, decay
   map<string, vector<double> > mbr; // branching ratios [e+e-, dalitz]
   map<double, vector<double> > mhp; // energy, [A, a, b, p0, n]
-  bool operator==(const Particle& prt) const {
-    //BOOST_FOREACH(string s, m | ad::map_keys) {
-    //  if ( m[s] != prt.m[s] ) return false;
-    //}
-    //BOOST_FOREACH(double e, mhp | ad::map_keys) {
-    //  for ( unsigned int i = 0; i < mhp[e].size(); ++i ) {
-    //    if ( mhp[e].at(i) != prt.mhp[e].at(i) ) return false;
-    //  }
-    //}
-    return true;
-  }
-  void rndInit() { // for testing purposes only
-    m["mass"] = rand() % 10;
-    w["width"] = rand() % 10;
-    for ( int i = 0; i < 3; ++i ) {
-      vector<double> v;
-      for ( int j = 0; j < 5; ++j ) v.push_back(rand()%1000);
-      mhp[rand()%100+1] = v;
-    }
-  }
+  bool operator==(const Particle& prt) const { return true; }
   void print() {
-    cout << "mass: " << m["mass"] << endl;
-    cout << "width: " << w["width"] << endl;
-    cout << "fsfac: " << fsfac["fsfac"] << endl;
-    cout << "l2: " << l2["l2"] << endl;
-    cout << "mode: " << mode["decay"] << endl;
+    BOOST_FOREACH(string k, mpr | ad::map_keys) {
+      cout << k << ": " << mpr[k] << endl;
+    }
+    cout << "br: [";
+    BOOST_FOREACH(double p, mbr["br"]) { cout << " " << p; }
+    cout << " ]" << endl;
     BOOST_FOREACH(double e, mhp | ad::map_keys) {
       cout << e << ": [";
       BOOST_FOREACH(double p, mhp[e]) { cout << " " << p; }
       cout << " ]" << endl;
     }
-    cout << "br: [";
-    BOOST_FOREACH(double p, mbr["br"]) { cout << " " << p; }
-    cout << " ]" << endl;
   }
 };
 
@@ -68,24 +45,16 @@ namespace YAML {
   template<> struct convert<Particle> {
     static Node encode(const Particle& prt) {
       Node node;
-      node.push_back(prt.m);
-      node.push_back(prt.w);
-      node.push_back(prt.fsfac);
-      node.push_back(prt.l2);
-      node.push_back(prt.mode);
+      node.push_back(prt.mpr);
       node.push_back(prt.mbr);
       node.push_back(prt.mhp);
       return node;
     }
     static bool decode(const Node& node, Particle& prt) {
       if (!node.IsSequence()) return false;
-      prt.m = node[0].as< map<string, double> >();
-      prt.w = node[1].as< map<string, double> >();
-      prt.fsfac = node[2].as< map<string, double> >();
-      prt.l2 = node[3].as< map<string, double> >();
-      prt.mode = node[4].as< map<string, int> >();
-      prt.mbr = node[5].as< map< string, vector<double> > >();
-      prt.mhp = node[6].as< map< double, vector<double> > >();
+      prt.mpr = node[0].as< map<string, double> >();
+      prt.mbr = node[1].as< map<string, vector<double> > >();
+      prt.mhp = node[2].as< map<double, vector<double> > >();
       return true;
     }
   };
@@ -120,13 +89,7 @@ namespace YAML {
 struct Database {
   map<string, DbHeader > mHdr;
   map<string, Particle> mDb;
-  bool operator==(const Database& db) const {
-    //BOOST_FOREACH(string s, mDb | ad::map_keys) {
-    //  if ( mDb[s] == db.mDb[s] ) continue;
-    //  else return false;
-    //}
-    return true;
-  }
+  bool operator==(const Database& db) const { return true; }
   void print() {
     BOOST_FOREACH(string s, mDb | ad::map_keys) {
       cout << s << endl; mDb[s].print();
@@ -172,15 +135,14 @@ class DatabaseManager {
       return mDB.mDb[p].mhp.count(e);
     }
     void print() { mDB.print(); }
-    double getMass(const string& p) { return getDB().mDb[p].m["mass"]; }
-    double getWidth(const string& p) { return getDB().mDb[p].w["width"]; }
-    double getDecayMode(const string& p) { return getDB().mDb[p].mode["decay"]; }
+    double getMass(const string& p) { return getDB().mDb[p].mpr["mass"]; }
+    double getWidth(const string& p) { return getDB().mDb[p].mpr["width"]; }
+    double getDecayMode(const string& p) { return getDB().mDb[p].mpr["decay"]; }
     double getAlpha() { return getDB().mHdr["header"].mPars["alpha"].at(0); }
     double getDecayMass(const string&);
     double getMaxMassBW(const string&);
     double getRatioBR(const string&);
+    double getSumBR(const string&);
 
-    // test database
-    void writeDb();
 };
 #endif  // STROOT_BESCOCKTAIL_DATABASE_H_

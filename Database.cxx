@@ -37,37 +37,8 @@ double DatabaseManager::getRatioBR(const string& p) { // dalitz / (ee + dalitz)
   return br_da/(br_ee+br_da);
 }
 
-void DatabaseManager::writeDb() {
-  // particles
-  vector<string> prts;
-  prts.push_back("pion");
-  prts.push_back("eta");
-  prts.push_back("omega");
-  prts.push_back("phi");
-  // init db
-  Database DB;
-  BOOST_FOREACH(string s, prts) {
-    Particle mPrt;
-    mPrt.rndInit();
-    DB.mDb[s] = mPrt;
-  }
-  // encode node with DB
-  YAML::Node node;
-  node = DB;
-  // emit yaml
-  YAML::Emitter emYml;
-  emYml << YAML::BeginMap;
-  emYml << YAML::Key << "DB" << YAML::Value << node;
-  emYml << YAML::EndMap;
-  std::cout << emYml.c_str();
-  // write to file
-  std::ofstream outYml;
-  outYml.open(dbfile.c_str());
-  outYml << emYml.c_str();
-  outYml.close();
-  // load from file again
-  YAML::Node nodeIn = YAML::LoadFile(dbfile);
-  Database DBin = nodeIn["DB"].as<Database>();
-  cout << endl;
-  DBin.print();
+double DatabaseManager::getSumBR(const string& p) { // dalitz / (ee + dalitz)
+  double br_ee = getDB().mDb[p].mbr["br"].at(0);
+  double br_da = getDB().mDb[p].mbr["br"].at(1);
+  return br_ee+br_da;
 }
