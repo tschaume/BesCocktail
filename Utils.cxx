@@ -12,9 +12,9 @@ double Utils::alpha = 1./137.035999174;
 
 Utils::Utils() { }
 
-void Utils::printInfo(const int& n) {
-  if ( n > 0 && !(n%100000) ) std::cout << n/1000 << "k" << std::endl;
-  else if ( !(n%10000) ) std::cout << "." << std::flush;
+void Utils::printInfo(const int& n, const int& div) {  // div in k
+  if ( n > 0 && !(n%(div*1000)) ) std::cout << n/1000 << "k" << std::endl;
+  else if ( !(n%(div*100)) ) std::cout << "." << std::flush;
 }
 
 const char* Utils::getOutFileName(const std::string& p, const double& e) {

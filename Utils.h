@@ -17,7 +17,7 @@ class Utils {
     static double threePi;
     static double alpha;
 
-    static void printInfo(const int&);
+    static void printInfo(const int&, const int& div = 100);
     static const char* getOutFileName(const std::string&, const double&);
 };
 #endif  // STROOT_BESCOCKTAIL_UTILS_H_
