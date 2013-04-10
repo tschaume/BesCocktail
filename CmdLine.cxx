@@ -17,6 +17,7 @@ bool CmdLine::parse(int argc, char *argv[]) {
     ("particle", po::value<std::string>(&particle), "simulate particle")
     ("ndecays,n", po::value<int>(&ndecays), "# decays")
     ("energy,e", po::value<double>(&energy), "energy")
+    ("loop,l", po::bool_switch(&bLoop), "loop ntuple in ana mode")
     ("db", po::value<std::string>(&dbfile), "input database file");
 
   po::options_description userOpts;

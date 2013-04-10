@@ -18,6 +18,7 @@ class CmdLine {
 
     bool bHelp;
     bool bVerbose;
+    bool bLoop;
     std::string particle;
     int ndecays;
     std::string dbfile;

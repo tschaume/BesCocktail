@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
     }
     else {  // analysis mode
       Analysis* ana = new Analysis(clopts->energy);
-      ana->loop();
+      if ( clopts->bLoop ) ana->loop();
     }
   }
   catch(const std::exception& e) {
