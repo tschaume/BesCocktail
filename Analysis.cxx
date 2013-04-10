@@ -15,7 +15,7 @@ Analysis::Analysis(const double& e) : energy(e) {
 }
 
 void Analysis::loop() {
-  TFile* fout = TFile::Open("hMee.root","recreate");
+  TFile* fout = TFile::Open(Utils::getOutFileName("rawhMee",energy),"recreate");
   BOOST_FOREACH(string p, dbm->getDB().mDb | ad::map_keys) {
     cout << endl << p << endl;
     mhMee[p] = new TH1D(p.c_str(), p.c_str(), 700, 0, 3.5);
@@ -34,5 +34,17 @@ void Analysis::loop() {
     fout->cd();
     mhMee[p]->Write();
   }
+  fout->Close();
+}
+
+void Analysis::genCocktail() {
+  TFile* fin = TFile::Open(Utils::getOutFileName("rawhMee",energy),"read");
+  if ( !fin ) return;
+  TH1D* hMeeTotal = new TH1D("hCocktail", "hCocktail", 700, 0, 3.5);
+  BOOST_FOREACH(string p, dbm->getDB().mDb | ad::map_keys) {
+    hMeeTotal->Add((TH1D*)fin->Get(p.c_str()));
+  }
+  TFile* fout = TFile::Open(Utils::getOutFileName("cocktail",energy),"recreate");
+  hMeeTotal->Write();
   fout->Close();
 }

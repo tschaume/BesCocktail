@@ -22,5 +22,6 @@ class Analysis {
     virtual ~Analysis() {}
 
     void loop();
+    void genCocktail();
 };
 #endif  // STROOT_BESCOCKTAIL_ANALYSIS_H_
