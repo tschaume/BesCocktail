@@ -5,6 +5,7 @@
 #include <boost/foreach.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <TFile.h>
+#include <TCanvas.h>
 #include "StRoot/BesCocktail/Utils.h"
 
 using std::map;
@@ -13,6 +14,7 @@ using std::endl;
 namespace ad = boost::adaptors;
 
 Analysis::Analysis(const double& e) : energy(e) {
+  mycoll = new MyCollection();
   // database manager & variables
   dbm = DatabaseManager::Instance();
   vector<double> vcuts = dbm->getHdrVar("cuts");
@@ -83,13 +85,22 @@ void Analysis::genCocktail() {
   if ( !fin ) return;
   TFile* fout = TFile::Open(Utils::getOutFileName("cocktail",energy),"recreate");
   TH1D* hMeeTotal = new TH1D("hCocktail", "hCocktail", 700, 0, 3.5);
+  mycoll->SetHistoAtts(hMeeTotal, kRed, 1);
+  TCanvas* can = new TCanvas("cCocktail", "cocktail", 0, 0, 1000, 707);
+  TH1D* h = (TH1D*)can->DrawFrame(0, 1e-7, 3.5, 10);
+  mycoll->SetHistoAtts(h, 0, 0);
   BOOST_FOREACH(string p, dbm->getDB().mPrt | ad::map_keys) {
     TTree* t = getTree(p); if ( !t ) return;
-    TH1D* h = (TH1D*)fin->Get(p.c_str());
+    h = (TH1D*)fin->Get(p.c_str());
+    mycoll->SetHistoAtts(h, Utils::mColorMap[p], 1);
+    h->SetFillColor(Utils::mColorMap[p]);
+    h->SetFillStyle(3003);
     scale(h, p, t->GetEntries());
+    h->DrawCopy("hsame");
     fout->cd(); h->Write();
     hMeeTotal->Add(h);
   }
-  fout->cd(); hMeeTotal->Write();
+  hMeeTotal->Draw("hsame");
+  fout->cd(); hMeeTotal->Write(); can->Write();
   fout->Close();
 }

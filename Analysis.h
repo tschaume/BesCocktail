@@ -6,6 +6,7 @@
 #include <TTree.h>
 #include <TH1D.h>
 #include "StRoot/BesCocktail/Database.h"
+#include "StRoot/MyCollection/MyCollection.h"
 
 using std::string;
 
@@ -23,6 +24,7 @@ class Analysis {
     Float_t em_pt;
     Float_t em_eta;
     Float_t ee_rap;
+    MyCollection* mycoll;
 
     TTree* getTree(const string&);
     void setBranchAddresses(TTree*);
