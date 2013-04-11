@@ -78,6 +78,7 @@ class DatabaseManager {
     double getMaxMassBW(const string&);
     double getRatioBR(const string&);
     double getSumBR(const string&);
+    double getdNdy(const string& p, const double& e) { return mDB.mYld[e][p]; }
 
 };
 #endif  // STROOT_BESCOCKTAIL_DATABASE_H_

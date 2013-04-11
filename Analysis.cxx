@@ -4,7 +4,6 @@
 #include <map>
 #include <boost/foreach.hpp>
 #include <boost/range/adaptor/map.hpp>
-#include <TH1D.h>
 #include <TFile.h>
 #include "StRoot/BesCocktail/Utils.h"
 
@@ -43,6 +42,12 @@ void Analysis::setBranchAddresses(TTree* t) {
   t->SetBranchAddress("eeRap", &ee_rap);
 }
 
+TTree* Analysis::getTree(const string& p) {
+  TFile* f = TFile::Open(Utils::getOutFileName(p,energy),"read");
+  if ( !f ) return NULL;
+  return (TTree*)f->Get(p.c_str());
+}
+
 void Analysis::loop() {
   TFile* fout = TFile::Open(Utils::getOutFileName("rawhMee",energy),"recreate");
   map<string, TH1D*> mhMee;
@@ -50,9 +55,7 @@ void Analysis::loop() {
     cout << endl << p << endl;
     mhMee[p] = new TH1D(p.c_str(), p.c_str(), 700, 0, 3.5);
     mhMee[p]->Sumw2();
-    TFile* f = TFile::Open(Utils::getOutFileName(p,energy),"read");
-    if ( !f ) return;
-    TTree* t = (TTree*)f->Get(p.c_str());
+    TTree* t = getTree(p); if ( !t ) return;
     Long64_t nentries = t->GetEntries();
     setBranchAddresses(t);
     for ( Long64_t n = 0; n < nentries; ++n ) {
@@ -67,15 +70,26 @@ void Analysis::loop() {
   fout->Close();
 }
 
+void Analysis::scale(TH1D* h, const string& p, const int& n) {
+  double s = 2.*mRapPairCut * dbm->getSumBR(p);
+  s *= dbm->getdNdy(p, energy);
+  s /= h->GetBinWidth(1) * n;
+  h->Scale(s);
+}
+
 void Analysis::genCocktail() {
   // TODO: add charm continuum from pythia
   TFile* fin = TFile::Open(Utils::getOutFileName("rawhMee",energy),"read");
   if ( !fin ) return;
+  TFile* fout = TFile::Open(Utils::getOutFileName("cocktail",energy),"recreate");
   TH1D* hMeeTotal = new TH1D("hCocktail", "hCocktail", 700, 0, 3.5);
   BOOST_FOREACH(string p, dbm->getDB().mPrt | ad::map_keys) {
-    hMeeTotal->Add((TH1D*)fin->Get(p.c_str()));
+    TTree* t = getTree(p); if ( !t ) return;
+    TH1D* h = (TH1D*)fin->Get(p.c_str());
+    scale(h, p, t->GetEntries());
+    fout->cd(); h->Write();
+    hMeeTotal->Add(h);
   }
-  TFile* fout = TFile::Open(Utils::getOutFileName("cocktail",energy),"recreate");
-  hMeeTotal->Write();
+  fout->cd(); hMeeTotal->Write();
   fout->Close();
 }

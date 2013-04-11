@@ -4,6 +4,7 @@
 
 #include <string>
 #include <TTree.h>
+#include <TH1D.h>
 #include "StRoot/BesCocktail/Database.h"
 
 using std::string;
@@ -23,9 +24,11 @@ class Analysis {
     Float_t em_eta;
     Float_t ee_rap;
 
+    TTree* getTree(const string&);
     void setBranchAddresses(TTree*);
     bool passTrackCuts(const Float_t&, const Float_t&);
     bool passCuts();
+    void scale(TH1D* h, const string&, const int&);
 
   public:
     Analysis(const double&);  // energy
