@@ -9,6 +9,7 @@ double Utils::emass2 = emass*emass;
 double Utils::twoPi = 2.*TMath::Pi();
 double Utils::threePi = 3.*TMath::Pi();
 double Utils::alpha = 1./137.035999174;
+std::map<std::string, int> Utils::mColorMap = Utils::createColorMap();
 
 Utils::Utils() { }
 
