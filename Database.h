@@ -8,69 +8,23 @@
 #include <vector>
 #include <map>
 #include <yaml-cpp/yaml.h>
-#include <boost/foreach.hpp>
-#include <boost/range/adaptor/map.hpp>
+#include <boost/lexical_cast.hpp>
 
 using std::string;
 using std::vector;
 using std::map;
-using std::cout;
-using std::endl;
 
-namespace ad = boost::adaptors;
-
-struct Particle {
-  map<string, double> mpr;  // properties
-  // mass (GeV/c2), width (GeV/c2), final state factor, Lambda^(-2), decay mode, BR's
-  // mass, width, fsfac, l2, decay, br_ee, br_da
-  map<double, vector<double> > mhp; // energy, [A, a, b, p0, n]
-  bool operator==(const Particle& prt) const { return true; }
-  void print() {
-    BOOST_FOREACH(string k, mpr | ad::map_keys) {
-      cout << "  " << k << ": " << mpr[k] << endl;
-    }
-    BOOST_FOREACH(double e, mhp | ad::map_keys) {
-      cout << "  " << e << ":";
-      BOOST_FOREACH(double p, mhp[e]) { cout << " " << p; }
-      cout << endl;
-    }
-  }
-};
-
-namespace YAML {
-  template<> struct convert<Particle> {
-    static Node encode(const Particle& prt) {
-      Node node;
-      node.push_back(prt.mpr);
-      node.push_back(prt.mhp);
-      return node;
-    }
-    static bool decode(const Node& node, Particle& prt) {
-      if (!node.IsSequence()) return false;
-      prt.mpr = node[0].as< map<string, double> >();
-      prt.mhp = node[1].as< map<double, vector<double> > >();
-      return true;
-    }
-  };
-}
+typedef map< string, vector<double> > StrVecTypeD;
+typedef map< string, double > StrNumTypeD;
+typedef map< double, StrNumTypeD > YldType;
+typedef map< string, StrNumTypeD > PrtType;
 
 struct Database {
-  map<string, vector<double> > mHdr;
-  map<string, Particle> mDb;
+  StrVecTypeD mHdr;
+  PrtType mPrt;
+  StrVecTypeD mHgd;
+  YldType mYld;
   bool operator==(const Database& db) const { return true; }
-  void print() {
-    cout << "=== Header ===" << endl;
-    BOOST_FOREACH(string s, mHdr | ad::map_keys) {
-      cout << "  " << s << ": ";
-      BOOST_FOREACH(double p, mHdr[s]) { cout << p << " " << std::flush; }
-      cout << endl;
-    }
-    cout << "=== Particles ===" << endl;
-    BOOST_FOREACH(string s, mDb | ad::map_keys) {
-      cout << s << endl; cout << "-----------" << endl;
-      mDb[s].print();
-    }
-  }
 };
 
 namespace YAML {
@@ -78,13 +32,17 @@ namespace YAML {
     static Node encode(const Database& db) {
       Node node;
       node.push_back(db.mHdr);
-      node.push_back(db.mDb);
+      node.push_back(db.mPrt);
+      node.push_back(db.mHgd);
+      node.push_back(db.mYld);
       return node;
     }
     static bool decode(const Node& node, Database& db) {
       if (!node.IsSequence()) return false;
-      db.mHdr = node[0].as< map<string, vector<double> > >();
-      db.mDb = node[1].as< map<string, Particle> >();
+      db.mHdr = node[0].as<StrVecTypeD>();  // Header
+      db.mPrt = node[1].as<PrtType>();  // Particle Properties
+      db.mHgd = node[2].as<StrVecTypeD>();  // Hagedorn
+      db.mYld = node[3].as<YldType>();  // Yields
       return true;
     }
   };
@@ -103,16 +61,17 @@ class DatabaseManager {
     virtual ~DatabaseManager() {}
 
     Database& getDB() { return mDB; }
-    bool checkParticle(const string& p) const { return mDB.mDb.count(p); }
-    bool checkEnergy(const string& p, const double& e) {
-      return mDB.mDb[p].mhp.count(e);
-    }
-    void print() { mDB.print(); }
+    bool checkParticle(const string& p) const { return mDB.mPrt.count(p); }
+    bool checkEnergy(const double& e) { return mDB.mYld.count(e); }
+    void print();
 
-    double getProperty(const string& p, const string& pr) {
-      return mDB.mDb[p].mpr[pr];
-    }
+    double getProperty(const string& p, const string& pr) { return mDB.mPrt[p][pr]; }
     vector<double> getHdrVar(const string& var) { return mDB.mHdr[var]; }
+    vector<double> getHgd(const string& p, const double& e) {
+      string key = p+"_";
+      key += boost::lexical_cast<string>(e);
+      return mDB.mHgd[key];
+    }
 
     double getAlpha() { return getHdrVar("alpha").at(0); }
     double getDecayMass(const string&);

@@ -7,7 +7,7 @@
 Functions::Functions(const std::string& p, const double& e)
 : particle(p), energy(e) {
   dbm = DatabaseManager::Instance();
-  vhp = dbm->getDB().mDb[particle].mhp[energy];
+  vhp = dbm->getHgd(particle, energy);
   vres = dbm->getHdrVar("res");
   vcr = dbm->getHdrVar("crystal");
   fsfac = dbm->getProperty(particle, "fsfac");

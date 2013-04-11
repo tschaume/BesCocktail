@@ -54,7 +54,7 @@ bool CmdLine::parse(int argc, char *argv[]) {
         return false;
       }
       // check energy
-      if ( !dbm->checkEnergy(particle, energy) ) {
+      if ( !dbm->checkEnergy(energy) ) {
         cout << "energy " << energy << " not in database" << endl;
         return false;
       }

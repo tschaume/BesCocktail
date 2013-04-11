@@ -9,6 +9,8 @@
 #include "StRoot/BesCocktail/Utils.h"
 
 using std::map;
+using std::cout;
+using std::endl;
 namespace ad = boost::adaptors;
 
 Analysis::Analysis(const double& e) : energy(e) {
@@ -44,7 +46,7 @@ void Analysis::setBranchAddresses(TTree* t) {
 void Analysis::loop() {
   TFile* fout = TFile::Open(Utils::getOutFileName("rawhMee",energy),"recreate");
   map<string, TH1D*> mhMee;
-  BOOST_FOREACH(string p, dbm->getDB().mDb | ad::map_keys) {
+  BOOST_FOREACH(string p, dbm->getDB().mPrt | ad::map_keys) {
     cout << endl << p << endl;
     mhMee[p] = new TH1D(p.c_str(), p.c_str(), 700, 0, 3.5);
     mhMee[p]->Sumw2();
@@ -70,7 +72,7 @@ void Analysis::genCocktail() {
   TFile* fin = TFile::Open(Utils::getOutFileName("rawhMee",energy),"read");
   if ( !fin ) return;
   TH1D* hMeeTotal = new TH1D("hCocktail", "hCocktail", 700, 0, 3.5);
-  BOOST_FOREACH(string p, dbm->getDB().mDb | ad::map_keys) {
+  BOOST_FOREACH(string p, dbm->getDB().mPrt | ad::map_keys) {
     hMeeTotal->Add((TH1D*)fin->Get(p.c_str()));
   }
   TFile* fout = TFile::Open(Utils::getOutFileName("cocktail",energy),"recreate");
