@@ -6,7 +6,7 @@ using std::cout;
 using std::endl;
 
 CmdLine::CmdLine()
-: particle(""), ndecays(100000), dbfile("db.yml"), energy(-1.)
+: particle(""), ndecays(100000), dbfile("db.yml"), energy(-1.), pyfile("")
 { }
 
 bool CmdLine::parse(int argc, char *argv[]) {
@@ -18,7 +18,8 @@ bool CmdLine::parse(int argc, char *argv[]) {
     ("ndecays,n", po::value<int>(&ndecays), "# decays")
     ("energy,e", po::value<double>(&energy), "energy")
     ("loop,l", po::bool_switch(&bLoop), "loop ntuple in ana mode")
-    ("db", po::value<std::string>(&dbfile), "input database file");
+    ("db", po::value<std::string>(&dbfile), "input database file")
+    ("pyfile", po::value<std::string>(&pyfile), "input pythia ccbar file");
 
   po::options_description userOpts;
   userOpts.add(generic);

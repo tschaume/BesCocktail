@@ -15,6 +15,7 @@ class Utils {
       m["omega"] = kGreen+3;
       m["phi"] = kCyan-3;
       m["jpsi"] = kMagenta+2;
+      m["ccbar"] = kOrange+7;
       return m;
     }
 

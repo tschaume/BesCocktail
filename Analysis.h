@@ -5,6 +5,7 @@
 #include <string>
 #include <TTree.h>
 #include <TH1D.h>
+#include <TFile.h>
 #include "StRoot/BesCocktail/Database.h"
 #include "StRoot/MyCollection/MyCollection.h"
 
@@ -14,6 +15,7 @@ class Analysis {
   private:
     string particle;
     double energy;
+    string pyfile;
     DatabaseManager* dbm;
     double mPtTrCut;
     double mEtaTrCut;
@@ -24,16 +26,23 @@ class Analysis {
     Float_t em_pt;
     Float_t em_eta;
     Float_t ee_rap;
+    Int_t ep_id;
+    Int_t em_id;
     MyCollection* mycoll;
+    TFile* fpy;
+    double Ncc;
+    double Ncoll;
+    double rBRcc;
 
     TTree* getTree(const string&);
-    void setBranchAddresses(TTree*);
+    void setBranchAddresses(TTree*, bool py = false);
     bool passTrackCuts(const Float_t&, const Float_t&);
     bool passCuts();
-    void scale(TH1D* h, const string&, const int&);
+    void scale(TH1D*, const string&, const int&);
+    void scalePy(TH1D*);
 
   public:
-    Analysis(const double&);  // energy
+    Analysis(const double&, const string&);  // energy, pydir
     virtual ~Analysis() {}
 
     void loop();

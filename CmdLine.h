@@ -23,6 +23,7 @@ class CmdLine {
     int ndecays;
     std::string dbfile;
     double energy;
+    std::string pyfile;
 
     bool parse(int argc, char *argv[]);
     void print();

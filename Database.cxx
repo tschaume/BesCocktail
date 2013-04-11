@@ -17,12 +17,20 @@ DatabaseManager::DatabaseManager(const string& d, bool bWrite)
     // load database (set mDB)
     YAML::Node nodeIn = YAML::LoadFile(dbfile);
     mDB = nodeIn.as<Database>();
+    initCcbrMap();
   }
 }
 
 DatabaseManager* DatabaseManager::Instance(const string& d, bool bWrite) {
   if ( !mDbm ) mDbm = new DatabaseManager(d, bWrite);
   return mDbm;
+}
+
+void DatabaseManager::initCcbrMap() {
+  int id[4] = { 411, 421, 431, 4122 };
+  for ( int i = 0; i < 4; ++i ) {
+    mMapCcbr[id[i]] = getHdrVar("ccbr").at(i);
+  }
 }
 
 double DatabaseManager::getDecayMass(const string& p) {
@@ -49,6 +57,10 @@ double DatabaseManager::getSumBR(const string& p) { // ee + dalitz
   double br_ee = getProperty(p, "br_ee");
   double br_da = getProperty(p, "br_da");
   return br_ee+br_da;
+}
+
+double DatabaseManager::getPyBrWeight2(const int& p, const int& n) {
+  return getPyBrWeight(p) * getPyBrWeight(n);
 }
 
 void DatabaseManager::print() {

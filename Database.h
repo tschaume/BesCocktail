@@ -24,6 +24,7 @@ struct Database {
   PrtType mPrt;
   StrVecTypeD mHgd;
   YldType mYld;
+  YldType mCcb;
   bool operator==(const Database& db) const { return true; }
 };
 
@@ -35,6 +36,7 @@ namespace YAML {
       node.push_back(db.mPrt);
       node.push_back(db.mHgd);
       node.push_back(db.mYld);
+      node.push_back(db.mCcb);
       return node;
     }
     static bool decode(const Node& node, Database& db) {
@@ -43,6 +45,7 @@ namespace YAML {
       db.mPrt = node[1].as<PrtType>();  // Particle Properties
       db.mHgd = node[2].as<StrVecTypeD>();  // Hagedorn
       db.mYld = node[3].as<YldType>();  // Yields
+      db.mCcb = node[4].as<YldType>();  // values for ccbar
       return true;
     }
   };
@@ -54,6 +57,8 @@ class DatabaseManager {
     DatabaseManager(const string&, bool bWrite = false);
     static DatabaseManager* mDbm;
     Database mDB;
+    map<int, double> mMapCcbr;  // map of ccbar branching ratios
+    void initCcbrMap();
 
   public:
     static DatabaseManager* Instance(const string&, bool bWrite = false);
@@ -79,6 +84,12 @@ class DatabaseManager {
     double getRatioBR(const string&);
     double getSumBR(const string&);
     double getdNdy(const string& p, const double& e) { return mDB.mYld[e][p]; }
+    double getPyBrWeight(const int& i) { return mMapCcbr[i]; }
+    double getPyBrWeight2(const int&, const int&);
+    double getNcoll(const double& e) { return mDB.mCcb[e]["Ncoll"]; }
+    double getCcbarBrRatio(const double& e) {
+      return mDB.mCcb[e]["ccX"]/mDB.mCcb[e]["totX"];
+    }
 
 };
 #endif  // STROOT_BESCOCKTAIL_DATABASE_H_

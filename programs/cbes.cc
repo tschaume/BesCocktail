@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
       fout->Close();
     }
     else {  // analysis mode
-      Analysis* ana = new Analysis(clopts->energy);
+      Analysis* ana = new Analysis(clopts->energy, clopts->pyfile);
       if ( clopts->bLoop ) ana->loop();
       ana->genCocktail();
     }
