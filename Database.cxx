@@ -60,7 +60,7 @@ void DatabaseManager::print() {
   }
   cout << "=== Particles ===" << endl;
   BOOST_FOREACH(string s, mDB.mPrt | ad::map_keys) {
-    cout << s << endl; cout << "-----------" << endl;
+    cout << s << endl;
     BOOST_FOREACH(string k, mDB.mPrt[s] | ad::map_keys) {
       cout << "  " << k << ": " << mDB.mPrt[s][k] << endl;
     }
