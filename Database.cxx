@@ -34,10 +34,9 @@ void DatabaseManager::initCcbrMap() {
 }
 
 double DatabaseManager::getDecayMass(const string& p) {
-  if ( p == "pion" || p == "eta" ) return 0.;
   if ( p == "omega" ) return getProperty("pion", "mass");
   if ( p == "phi" ) return getProperty("eta", "mass");
-  return -1.;
+  return 0.;
 }
 
 double DatabaseManager::getMaxMassBW(const string& p) {
