@@ -10,6 +10,8 @@ double Utils::twoPi = 2.*TMath::Pi();
 double Utils::threePi = 3.*TMath::Pi();
 double Utils::alpha = 1./137.035999174;
 double Utils::mMin = 2*emass;
+int Utils::nBins = 1000;
+double Utils::mMax = 5.;
 std::map<std::string, int> Utils::mColorMap = Utils::createColorMap();
 
 Utils::Utils() { }

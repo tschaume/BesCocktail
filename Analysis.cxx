@@ -68,7 +68,7 @@ TTree* Analysis::getTree(const string& p) {
 void Analysis::loop() {
   TFile* fout = TFile::Open(Utils::getOutFileName("rawhMee",energy),"recreate");
   // charm continuum from pythia
-  TH1D* mhMeePy = new TH1D("ccbar", "ccbar", 700, 0, 3.5); mhMeePy->Sumw2();
+  TH1D* mhMeePy = new TH1D("ccbar", "ccbar", Utils::nBins, 0, Utils::mMax); mhMeePy->Sumw2();
   if ( fpy ) {
     TTree* tpy = (TTree*)fpy->Get("meTree"); if ( !tpy ) return;
     cout << endl << "ccbar" << endl;
@@ -86,7 +86,7 @@ void Analysis::loop() {
   map<string, TH1D*> mhMee;
   BOOST_FOREACH(string p, dbm->getDB().mPrt | ad::map_keys) {
     cout << endl << p << endl;
-    mhMee[p] = new TH1D(p.c_str(), p.c_str(), 700, 0, 3.5);
+    mhMee[p] = new TH1D(p.c_str(), p.c_str(), Utils::nBins, 0, Utils::mMax);
     mhMee[p]->Sumw2();
     TTree* t = getTree(p); if ( !t ) return;
     setBranchAddresses(t);
@@ -113,10 +113,10 @@ void Analysis::genCocktail() {
   TFile* fin = TFile::Open(Utils::getOutFileName("rawhMee",energy),"read");
   if ( !fin ) return;
   TFile* fout = TFile::Open(Utils::getOutFileName("cocktail",energy),"recreate");
-  TH1D* hMeeTotal = new TH1D("hCocktail", "hCocktail", 700, 0, 3.5);
+  TH1D* hMeeTotal = new TH1D("hCocktail", "hCocktail", Utils::nBins, 0, Utils::mMax);
   mycoll->SetHistoAtts(hMeeTotal, kRed, 1);
   TCanvas* can = new TCanvas("cCocktail", "cocktail", 0, 0, 1000, 707);
-  TH1D* h = (TH1D*)can->DrawFrame(0, 1e-7, 3.5, 10);
+  TH1D* h = (TH1D*)can->DrawFrame(0, 1e-6, Utils::mMax, 10);
   mycoll->SetHistoAtts(h, 0, 0);
   // hadron decay contributions
   BOOST_FOREACH(string p, dbm->getDB().mPrt | ad::map_keys) {

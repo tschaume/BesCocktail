@@ -30,6 +30,8 @@ class Utils {
     static double threePi;
     static double alpha;
     static double mMin;
+    static int nBins;
+    static double mMax;
     static std::map<std::string, int> mColorMap;
 
     static void printInfo(const int&, const int& div = 100);
