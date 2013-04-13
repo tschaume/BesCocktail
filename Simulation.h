@@ -53,7 +53,6 @@ class Simulation {
 
     static double ptMin;
     static double ptMax;
-    static double mMin;
 
     void sampleInput();
     void decay();

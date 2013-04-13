@@ -3,10 +3,10 @@
 #include "StRoot/BesCocktail/Utils.h"
 #include <iostream>
 #include <TMath.h>
+#include <TFile.h>
 
 double Simulation::ptMin = 0.;
 double Simulation::ptMax = 10.;
-double Simulation::mMin = 2*Utils::emass;
 
 Simulation::Simulation(const string& p, const double& e)
 : particle(p), energy(e)
@@ -36,13 +36,13 @@ Simulation::Simulation(const string& p, const double& e)
   fp = new Functions(particle, energy);
   fPt = new TF1("fPt", fp, &Functions::MtScaling, ptMin, ptMax, 0);
   fPt->SetNpx(10000);
-  fM = new TF1("fM", fp, &Functions::BreitWigner, mMin, mMax, 0);
+  fM = new TF1("fM", fp, &Functions::BreitWigner, Utils::mMin, mMax, 0);
   fM->SetNpx(10000);
   fRes = new TF1("fRes", fp, &Functions::MomRes, ptMin, ptMax, 0);
   fM->SetNpx(10000);
   fCB = new TF1("fCB", fp, &Functions::CrystalBall2, -1., 1., 0);
   fCB->SetNpx(10000);
-  fKW = new TF1("fKW", fp, &Functions::KrollWada, mMin, mass-mass_dec, 0);
+  fKW = new TF1("fKW", fp, &Functions::KrollWada, Utils::mMin, mass-mass_dec, 0);
   fKW->SetNpx(10000);
 }
 
