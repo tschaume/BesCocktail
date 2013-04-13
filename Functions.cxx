@@ -13,9 +13,15 @@ Functions::Functions(const std::string& p, const double& e)
   fsfac = dbm->getProperty(particle, "fsfac");
   l2 = dbm->getProperty(particle, "l2");
   wdth = dbm->getProperty(particle, "width");
-  isPhiOm = ( particle == "phi" || particle == "omega" );
   mh = dbm->getProperty(particle, "mass");
   mhdec = dbm->getDecayMass(particle);
+  g02 = dbm->getProperty(particle, "g02");
+  isPhiOm = ( particle == "phi" || particle == "omega" );
+  if ( particle == "pion" ) {
+    fF2 = new TF1("fF2", this, &Functions::pionF2, Utils::mMin, mh-mhdec, 0);
+  } else {
+    fF2 = new TF1("fF2", this, &Functions::otherF2, Utils::mMin, mh-mhdec, 0);
+  }
 }
 
 double Functions::HagedornPower(const double& x) {
@@ -79,13 +85,16 @@ double Functions::PS(const double& q) {
   return ps;
 }
 
-double Functions::F2(const double& q) {
-  // TODO: use 1+(m/l)^2 for pion!?
-  double base = 1.-q*q*l2;
-  return 1./(base*base);
+double Functions::pionF2(double* x, double* par) {  // (1+m*m*l2)^2
+  double b = 1.+x[0]*x[0]*l2; return b*b;
+}
+
+double Functions::otherF2(double* x, double* par) {  // 1/[ (1-m*m*l2)^2 + g02*l2 ]
+  double b = 1.-x[0]*x[0]*l2; return 1./(b*b+g02*l2);
 }
 
 double Functions::KrollWada(double* x, double* p) {
   double mee = x[0];
-  return 2.*mee * F2(mee) * QED(mee) * PS(mee);
+  double F2 = fF2->Eval(mee);
+  return 2.*mee * F2 * QED(mee) * PS(mee);
 }

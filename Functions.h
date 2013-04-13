@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <TF1.h>
 #include "StRoot/BesCocktail/Database.h"
 
 using std::string;
@@ -23,6 +24,8 @@ class Functions {
     bool isPhiOm;  // true if is phi or omega
     double mhdec;  // decay hadron mass
     double l2;  // Lambda^(-2)
+    double g02;  // Gamma0^2
+    TF1* fF2;  // Formfactor function
 
     double HagedornPower(const double&);
     double getCrystalA(const double&, const double&);
@@ -30,7 +33,8 @@ class Functions {
     double QED(const double&);
     double PhiOmPS(const double&);
     double PS(const double&);
-    double F2(const double&);
+    double pionF2(double*, double*);
+    double otherF2(double*, double*);
 
   public:
     Functions(const string&, const double&);
