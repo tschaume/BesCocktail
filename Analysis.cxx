@@ -116,15 +116,15 @@ void Analysis::genCocktail() {
   TH1D* hMeeTotal = new TH1D("hCocktail", "hCocktail", Utils::nBins, 0, Utils::mMax);
   mycoll->SetHistoAtts(hMeeTotal, kRed, 1);
   TCanvas* can = new TCanvas("cCocktail", "cocktail", 0, 0, 1000, 707);
-  TH1D* h = (TH1D*)can->DrawFrame(0, 1e-6, Utils::mMax, 10);
+  TH1D* h = (TH1D*)can->DrawFrame(0, 1e-6, 3.3, 20);
   mycoll->SetHistoAtts(h, 0, 0);
   // hadron decay contributions
   BOOST_FOREACH(string p, dbm->getDB().mPrt | ad::map_keys) {
     TTree* t = getTree(p); if ( !t ) return;
     h = (TH1D*)fin->Get(p.c_str());
     mycoll->SetHistoAtts(h, Utils::mColorMap[p], 1);
-    h->SetFillColor(Utils::mColorMap[p]);
-    h->SetFillStyle(3003);
+    //h->SetFillColor(Utils::mColorMap[p]);
+    //h->SetFillStyle(3003);
     scale(h, p, t->GetEntries());
     h->DrawCopy("hsame");
     fout->cd(); h->Write();
@@ -134,8 +134,8 @@ void Analysis::genCocktail() {
   h = (TH1D*)fin->Get("ccbar");
   if ( h ) {
     mycoll->SetHistoAtts(h, Utils::mColorMap["ccbar"], 1);
-    h->SetFillColor(Utils::mColorMap["ccbar"]);
-    h->SetFillStyle(3003);
+    //h->SetFillColor(Utils::mColorMap["ccbar"]);
+    //h->SetFillStyle(3003);
     double s = Ncoll / h->GetBinWidth(1) / Ncc * rBRcc;
     h->Scale(s);
     h->DrawCopy("hsame");
@@ -143,6 +143,7 @@ void Analysis::genCocktail() {
     hMeeTotal->Add(h);
   }
   hMeeTotal->Draw("hsame");
+  mycoll->plotLatexLine(Form("%.0f GeV", energy), .5, .5);
   fout->cd(); hMeeTotal->Write(); can->Write();
   fout->Close();
 }
