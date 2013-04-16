@@ -103,7 +103,7 @@ void Analysis::loop() {
 }
 
 void Analysis::scale(TH1D* h, const string& p, const int& n) {
-  double s = 2.*mRapPairCut * dbm->getSumBR(p);
+  double s = 2.*dbm->getSumBR(p);  // 2 = dy for rapidity window of VM simulation (not eeRap Cut!)
   s *= dbm->getdNdy(p, energy);
   s /= h->GetBinWidth(1) * n;
   h->Scale(s);
