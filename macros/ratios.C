@@ -1,7 +1,7 @@
 void ratios() {
   gStyle->SetOptStat(0);
   TFile* fMe  = TFile::Open("out/200/cocktail.root","read");
-  //TFile* fXin = TFile::Open("CocktailQM2011.root","read");
+  TFile* fXin = TFile::Open("CocktailQM2011.root","read");
   TFile* fJie = TFile::Open("Cocktail200GeV_latest.root","read");
 
   const int np = 8;
@@ -28,7 +28,7 @@ void ratios() {
     c->cd(i+1);
     if ( i == 4 ) gPad->SetLogy();
     hR[i] = (TH1D*)fMe->Get(hnMe[i].Data());
-    hR[i]->Divide((TH1D*)fJie->Get(hnJie[i].Data()));
+    hR[i]->Divide((TH1D*)fXin->Get(hnXin[i].Data()));
     hR[i]->GetXaxis()->SetRangeUser(hrX1[i], hrX2[i]);
     hR[i]->GetYaxis()->SetRangeUser(hrY1[i], hrY2[i]);
     hR[i]->Draw();
