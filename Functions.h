@@ -26,6 +26,7 @@ class Functions {
     double l2;  // Lambda^(-2)
     double g02;  // Gamma0^2
     TF1* fF2;  // Formfactor function
+    double mpi;
 
     double HagedornPower(const double&);
     double getCrystalA(const double&, const double&);

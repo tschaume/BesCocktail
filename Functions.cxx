@@ -16,6 +16,7 @@ Functions::Functions(const std::string& p, const double& e)
   mh = dbm->getProperty(particle, "mass");
   mhdec = dbm->getDecayMass(particle);
   g02 = dbm->getProperty(particle, "g02");
+  mpi = dbm->getProperty("pion", "mass");
   isPhiOm = ( particle == "phi" || particle == "omega" );
   if ( particle == "pion" ) {
     fF2 = new TF1("fF2", this, &Functions::pionF2, Utils::mMin, mh-mhdec, 0);
@@ -31,7 +32,7 @@ double Functions::HagedornPower(const double& x) {
 }
 
 double Functions::MtScaling(double* x, double* p) {
-  double mt = sqrt(x[0]*x[0] + mh*mh);
+  double mt = sqrt(x[0]*x[0] + mh*mh - mpi*mpi);
   return HagedornPower(mt);
 }
 
