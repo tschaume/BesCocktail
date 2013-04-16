@@ -153,6 +153,7 @@ void Simulation::pushNtVars() {
   vfill.push_back(ep->Eta());
   vfill.push_back(em->Eta());
   vfill.push_back((*em+*ep).M());
+  vfill.push_back((*em+*ep).Pt());
   vfill.push_back((*em+*ep).Rapidity());
 }
 

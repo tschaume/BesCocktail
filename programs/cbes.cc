@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
       const char* nt_vars =
         "ptVM:etaVM:phiVM:mVM:"
         "ptEp:ptEm:ptDh:etaEp:etaEm:eeMass:eeRap:"
-        "ptEpR:ptEmR:ptDhR:etaEpR:etaEmR:eeMassR:eeRapR";
+        "ptEpR:ptEmR:ptDhR:etaEpR:etaEmR:eeMassR:eePtR:eeRapR";
       TNtuple* nt = new TNtuple(nt_name, nt_name, nt_vars, 0);
 
       // start loop
