@@ -75,7 +75,8 @@ class DatabaseManager {
     vector<double> getHgd(const string& p, const double& e) {
       string key = p+"_";
       key += boost::lexical_cast<string>(e);
-      return mDB.mHgd[key];
+      if ( mDB.mHgd.count(key) ) return mDB.mHgd[key];
+      else return mDB.mHgd["pion_200"];
     }
 
     double getAlpha() { return getHdrVar("alpha").at(0); }
