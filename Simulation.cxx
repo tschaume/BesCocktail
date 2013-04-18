@@ -44,11 +44,15 @@ Simulation::Simulation(const string& p, const double& e)
   fCB->SetNpx(10000);
   fKW = new TF1("fKW", fp, &Functions::KrollWada, Utils::mMin, mass-mass_dec, 0);
   fKW->SetNpx(10000);
+  fRapJpsi = new TF1("fRapJpsi", "gaus", -1, 1);
+  fRapJpsi->SetNpx(10000);
+  fRapJpsi->SetParameters(1., 0., 1.1);
 }
 
 double Simulation::getEta(const double& pT) {
   double mT = sqrt(mass*mass+pT*pT);
   double y = rndm[1]->Uniform(-1.,1.);
+  //if ( particle == "jpsi" ) y = fRapJpsi->GetRandom();
   return asinh(mT/pT*sinh(y));
 }
 

@@ -34,6 +34,7 @@ class Simulation {
     TF1* fRes;  // pt momentum resolution
     TF1* fCB;  // CrystalBall for momentum smearing
     TF1* fKW;  // KrollWada for dalitz decays
+    TF1* fRapJpsi;  // jpsi gaussian rapidity distribution
     std::vector<double> vfill;
     Float_t* afill;
     bool isDhKin;  // flag true if decay hadron kinematics
