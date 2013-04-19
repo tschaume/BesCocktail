@@ -48,6 +48,7 @@ Simulation::Simulation(const string& p, const double& e)
   fRapJpsi->SetNpx(10000);
   fRapJpsi->SetParameters(1., 0., 1.1);
   if ( energy == 200 ) {
+#if 0
     TFile* fYif = TFile::Open("root/TBWinput/mesons_baryons_noOmega_080.root", "read");
     map<string, string> mhYif;
     mhYif["pion"] = "hFit20";
@@ -63,6 +64,10 @@ Simulation::Simulation(const string& p, const double& e)
       Double_t cx = hPtInv->GetBinCenter(i);
       hPt->SetBinContent(i, cx*bc*2.*TMath::Pi());
     }
+#endif
+    TFile* fYif = TFile::Open("root/AllInputPt_200GeV.root", "read");
+    hPt = (TH1D*)fYif->Get(particle.c_str());
+    std::cout << "hPt = " << hPt << std::endl;
   }
 }
 
