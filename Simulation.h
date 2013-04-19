@@ -7,6 +7,7 @@
 #include <TRandom3.h>
 #include <TLorentzVector.h>
 #include <TF1.h>
+#include <TH1D.h>
 #include "StRoot/BesCocktail/Database.h"
 #include "StRoot/BesCocktail/Functions.h"
 
@@ -38,6 +39,8 @@ class Simulation {
     std::vector<double> vfill;
     Float_t* afill;
     bool isDhKin;  // flag true if decay hadron kinematics
+    TH1D* hPtInv;  // test input pT histo
+    TH1D* hPt;  // test input pT histo (hPtInv*pT)
 
     double getEta(const double&);
     void applyMomSmear(TLorentzVector&);

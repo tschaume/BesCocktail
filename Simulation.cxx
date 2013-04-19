@@ -47,6 +47,23 @@ Simulation::Simulation(const string& p, const double& e)
   fRapJpsi = new TF1("fRapJpsi", "gaus", -1, 1);
   fRapJpsi->SetNpx(10000);
   fRapJpsi->SetParameters(1., 0., 1.1);
+  if ( energy == 200 ) {
+    TFile* fYif = TFile::Open("root/TBWinput/mesons_baryons_noOmega_080.root", "read");
+    map<string, string> mhYif;
+    mhYif["pion"] = "hFit20";
+    mhYif["eta"] = "hFit21";
+    mhYif["etap"] = "hFit24";
+    mhYif["omega"] = "hFit23";
+    mhYif["phi"] = "hFit10";
+    mhYif["jpsi"] = "hFit26";
+    hPtInv = (TH1D*)fYif->Get(mhYif[particle].c_str());
+    hPt = (TH1D*)hPtInv->Clone("hPt");
+    for ( Int_t i = 1; i < hPtInv->GetNbinsX()+1; ++i ) {
+      Double_t bc = hPtInv->GetBinContent(i);
+      Double_t cx = hPtInv->GetBinCenter(i);
+      hPt->SetBinContent(i, cx*bc*2.*TMath::Pi());
+    }
+  }
 }
 
 double Simulation::getEta(const double& pT) {
@@ -57,7 +74,8 @@ double Simulation::getEta(const double& pT) {
 }
 
 void Simulation::sampleInput() {
-  mPt = fPt->GetRandom(); // rndm[0]->Uniform(ptMin, ptMax);
+  if ( energy != 200 ) mPt = fPt->GetRandom(); // rndm[0]->Uniform(ptMin, ptMax);
+  else mPt = hPt->GetRandom();
   mEta = getEta(mPt);  // random based on uniform y [-1,1]
   mPhi = rndm[2]->Uniform(0., Utils::twoPi);  // random phi [0,2pi]
 }
