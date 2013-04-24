@@ -36,17 +36,22 @@ Simulation::Simulation(const string& p, const double& e)
   fp = new Functions(particle, energy);
   fPt = new TF1("fPt", fp, &Functions::MtScaling, ptMin, ptMax, 0);
   fPt->SetNpx(10000);
+  hPt = (TH1D*)fPt->GetHistogram();
   fM = new TF1("fM", fp, &Functions::BreitWigner, Utils::mMin, mMax, 0);
   fM->SetNpx(10000);
+  hM = (TH1D*)fM->GetHistogram();
   fRes = new TF1("fRes", fp, &Functions::MomRes, ptMin, ptMax, 0);
   fRes->SetNpx(10000);
   fCB = new TF1("fCB", fp, &Functions::CrystalBall2, -1., 1., 0);
   fCB->SetNpx(10000);
+  hCB = (TH1D*)fCB->GetHistogram();
   fKW = new TF1("fKW", fp, &Functions::KrollWada, Utils::mMin, mass-mass_dec, 0);
   fKW->SetNpx(10000);
+  hKW = (TH1D*)fKW->GetHistogram();
   fRapJpsi = new TF1("fRapJpsi", "gaus", -1, 1);
   fRapJpsi->SetNpx(10000);
   fRapJpsi->SetParameters(1., 0., 1.1);
+  hRapJpsi = (TH1D*)fRapJpsi->GetHistogram();
   if ( energy == 200 ) {
 #if 0
     TFile* fYif = TFile::Open("root/TBWinput/mesons_baryons_noOmega_080.root", "read");
@@ -74,13 +79,12 @@ Simulation::Simulation(const string& p, const double& e)
 double Simulation::getEta(const double& pT) {
   double mT = sqrt(mass*mass+pT*pT);
   double y = rndm[1]->Uniform(-1.,1.);
-  //if ( particle == "jpsi" ) y = fRapJpsi->GetRandom();
+  //if ( particle == "jpsi" ) y = hRapJpsi->GetRandom();
   return asinh(mT/pT*sinh(y));
 }
 
 void Simulation::sampleInput() {
-  if ( energy != 200 ) mPt = fPt->GetRandom(); // rndm[0]->Uniform(ptMin, ptMax);
-  else mPt = hPt->GetRandom();
+  mPt = hPt->GetRandom(); // rndm[0]->Uniform(ptMin, ptMax);
   mEta = getEta(mPt);  // random based on uniform y [-1,1]
   mPhi = rndm[2]->Uniform(0., Utils::twoPi);  // random phi [0,2pi]
 }
@@ -113,7 +117,7 @@ void Simulation::hDecayVM(const double& mll) { // daughter hadron in parent VM c
 
 void Simulation::doTwoBodyDecay() {
   // electrons in VM center of mass
-  double mBW = fM->GetRandom();  // Breit-Wigner mass
+  double mBW = hM->GetRandom();  // Breit-Wigner mass
   vfill.push_back(mBW);
   eeDecayVM(mBW);  // ee decay the vector meson
   // boost to lab frame
@@ -126,7 +130,7 @@ void Simulation::doTwoBodyDecay() {
 
 void Simulation::doDalitzDecay() {
   vfill.push_back(mass);
-  double mll = fKW->GetRandom();  // fKW range = allowed phase space
+  double mll = hKW->GetRandom();  // fKW range = allowed phase space
   eeDecayVM(mll);  // ee decay the virtual photon
   hDecayVM(mll);  // daughter hadron kinematics
   // boost e+/e- into lepton pair (virtual photon) frame (dlp)
@@ -161,7 +165,7 @@ void Simulation::decay() { // decay mode = isTwoBody + 10 * isDalitz
 
 void Simulation::applyMomSmear(TLorentzVector& l) {
   double ptrc = l.Pt();
-  ptrc *= 1 + fCB->GetRandom() * fRes->Eval(l.Pt())/0.01;
+  ptrc *= 1 + hCB->GetRandom() * fRes->Eval(l.Pt())/0.01;
   l.SetPtEtaPhiM(ptrc, l.Eta(), l.Phi(), Utils::emass);
 }
 

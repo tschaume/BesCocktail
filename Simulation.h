@@ -40,7 +40,11 @@ class Simulation {
     Float_t* afill;
     bool isDhKin;  // flag true if decay hadron kinematics
     TH1D* hPtInv;  // test input pT histo
-    TH1D* hPt;  // test input pT histo (hPtInv*pT)
+    TH1D* hPt;  // pT histo (hPtInv*pT@200)
+    TH1D* hM;
+    TH1D* hCB;
+    TH1D* hKW;
+    TH1D* hRapJpsi;
 
     double getEta(const double&);
     void applyMomSmear(TLorentzVector&);
