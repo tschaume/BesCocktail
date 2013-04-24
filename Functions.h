@@ -27,6 +27,14 @@ class Functions {
     double g02;  // Gamma0^2
     TF1* fF2;  // Formfactor function
     double mpi;
+    double tsT;   // temperature
+    double tsq;   // degree of equilibrium
+    double tsb;   // average flow velocity
+    double tsbS;  // surface flow velocity
+    double tsR;   // hard-spherical R (surface)
+    TF1* fTsR;  // radial Integrand
+    TF1* fTsPhi;  // azimuthal Integrand
+    TF1* fTsRap;  // rapidity Integrand
 
     double HagedornPower(const double&);
     double getCrystalA(const double&, const double&);
@@ -36,6 +44,10 @@ class Functions {
     double PS(const double&);
     double pionF2(double*, double*);
     double otherF2(double*, double*);
+    double TsallisRho(const double&);
+    double TsallisRadialBase(double*, double*);
+    double TsallisPhiBase(double*, double*);
+    double TsallisRapBase(double*, double*);
 
   public:
     Functions(const string&, const double&);
@@ -46,5 +58,6 @@ class Functions {
     double MomRes(double*, double*);
     double CrystalBall2(double*, double*);
     double KrollWada(double*, double*);
+    double Tsallis(double*, double*);
 };
 #endif  // STROOT_BESCOCKTAIL_FUNCTIONS_H_

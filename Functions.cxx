@@ -23,6 +23,15 @@ Functions::Functions(const std::string& p, const double& e)
   } else {
     fF2 = new TF1("fF2", this, &Functions::otherF2, Utils::mMin, mh-mhdec, 0);
   }
+  // tsallis parameters
+  tsT = 0.1191;
+  tsq = 1.0132;
+  tsb = 0.3974;
+  tsbS = 0.5961;
+  tsR = 1.;
+  fTsR = new TF1("fTsR", this, &Functions::TsallisRadialBase, 0, tsR, 3);
+  fTsPhi = new TF1("fTsPhi", this, &Functions::TsallisPhiBase, -TMath::Pi(), TMath::Pi(), 2);
+  fTsRap = new TF1("fTsRap", this, &Functions::TsallisRapBase, -1, 1, 1);
 }
 
 double Functions::HagedornPower(const double& x) {
@@ -98,4 +107,41 @@ double Functions::KrollWada(double* x, double* p) {
   double mee = x[0];
   double F2 = fF2->Eval(mee);
   return 2.*mee * F2 * QED(mee) * PS(mee);
+}
+
+double Functions::TsallisRho(const double& r) {
+  double tsn = 1. / (tsq - 1.);
+  return atanh(tsbS * pow(r/tsR, tsn));
+}
+
+double Functions::TsallisRadialBase(double* x, double* p) {  // x = r, p = [pT, y, phi]
+  double r(x[0]), pT(p[0]), y(p[1]), phi(p[2]);
+  double mT = sqrt(pT*pT+mh*mh);
+  double rho = TsallisRho(r);
+  double hypgeo = mT * cosh(y) * cosh(rho);
+  hypgeo -= pT * sinh(rho) * cos(phi);
+  double base = r * pow(1. + (tsq-1.)/tsT * hypgeo, -1./(tsq-1.));
+  return base;
+}
+
+double Functions::TsallisPhiBase(double* x, double* p) {  // x = phi, p = [pT, y]
+  fTsR->FixParameter(0, p[0]);
+  fTsR->FixParameter(1, p[1]);
+  fTsR->FixParameter(2, x[0]);
+  return fTsR->Integral(0, tsR);
+}
+
+double Functions::TsallisRapBase(double* x, double* p) {  // x = y, p = [pT]
+  double y(x[0]);
+  fTsPhi->FixParameter(0, p[0]);
+  fTsPhi->FixParameter(1, y);
+  double phiInt = fTsPhi->Integral(-TMath::Pi(), TMath::Pi());
+  return cosh(y) * phiInt;
+}
+
+double Functions::Tsallis(double* x, double* p) {  // x = pT
+  double pT(x[0]);
+  double mT = sqrt(pT*pT+mh*mh);
+  fTsRap->FixParameter(0, pT);
+  return pT * mT * fTsRap->Integral(-1., 1.);
 }
