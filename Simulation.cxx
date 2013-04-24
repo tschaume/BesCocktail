@@ -39,7 +39,7 @@ Simulation::Simulation(const string& p, const double& e)
   fM = new TF1("fM", fp, &Functions::BreitWigner, Utils::mMin, mMax, 0);
   fM->SetNpx(10000);
   fRes = new TF1("fRes", fp, &Functions::MomRes, ptMin, ptMax, 0);
-  fM->SetNpx(10000);
+  fRes->SetNpx(10000);
   fCB = new TF1("fCB", fp, &Functions::CrystalBall2, -1., 1., 0);
   fCB->SetNpx(10000);
   fKW = new TF1("fKW", fp, &Functions::KrollWada, Utils::mMin, mass-mass_dec, 0);
