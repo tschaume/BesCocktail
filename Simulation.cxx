@@ -34,9 +34,6 @@ Simulation::Simulation(const string& p, const double& e)
   dlp = new TLorentzVector();  // denotes decay lepton pair (virtual photon)
   // init Functions
   fp = new Functions(particle, energy);
-  fPt = new TF1("fPt", fp, &Functions::MtScaling, ptMin, ptMax, 0);
-  fPt->SetNpx(10000);
-  hPt = (TH1D*)fPt->GetHistogram();
   fM = new TF1("fM", fp, &Functions::BreitWigner, Utils::mMin, mMax, 0);
   fM->SetNpx(10000);
   hM = (TH1D*)fM->GetHistogram();
@@ -52,7 +49,13 @@ Simulation::Simulation(const string& p, const double& e)
   fRapJpsi->SetNpx(10000);
   fRapJpsi->SetParameters(1., 0., 1.1);
   hRapJpsi = (TH1D*)fRapJpsi->GetHistogram();
-  if ( energy == 200 ) {
+  // init pT distribution
+  //fPt = new TF1("fPt", fp, &Functions::MtScaling, ptMin, ptMax, 0);
+  fPt = new TF1("fPt", fp, &Functions::Tsallis, ptMin, ptMax, 0);
+  //fPt->SetNpx(10000);
+  if ( energy != 200 ) {
+    hPt = (TH1D*)fPt->GetHistogram();
+  } else {
 #if 0
     TFile* fYif = TFile::Open("root/TBWinput/mesons_baryons_noOmega_080.root", "read");
     map<string, string> mhYif;

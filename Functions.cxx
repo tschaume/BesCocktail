@@ -25,10 +25,11 @@ Functions::Functions(const std::string& p, const double& e)
   }
   // tsallis parameters
   tsT = 0.1191;
-  tsq = 1.0132;
   tsb = 0.3974;
   tsbS = 0.5961;
   tsR = 1.;
+  tsq = 1.0132;
+  tsn = 1. / (tsq - 1.); //tsb/(tsbS-tsb) - 1.;  //2*(tsbS/tsb-1.);
   fTsR = new TF1("fTsR", this, &Functions::TsallisRadialBase, 0, tsR, 3);
   fTsPhi = new TF1("fTsPhi", this, &Functions::TsallisPhiBase, -TMath::Pi(), TMath::Pi(), 2);
   fTsRap = new TF1("fTsRap", this, &Functions::TsallisRapBase, -1, 1, 1);
@@ -110,7 +111,6 @@ double Functions::KrollWada(double* x, double* p) {
 }
 
 double Functions::TsallisRho(const double& r) {
-  double tsn = 1. / (tsq - 1.);
   return atanh(tsbS * pow(r/tsR, tsn));
 }
 
@@ -125,23 +125,28 @@ double Functions::TsallisRadialBase(double* x, double* p) {  // x = r, p = [pT, 
 }
 
 double Functions::TsallisPhiBase(double* x, double* p) {  // x = phi, p = [pT, y]
-  fTsR->FixParameter(0, p[0]);
-  fTsR->FixParameter(1, p[1]);
-  fTsR->FixParameter(2, x[0]);
-  return fTsR->Integral(0, tsR);
+  fTsR->SetParameters(p[0], p[1], x[0]);
+  fTsR->CalcGaussLegendreSamplingPoints(nGL, xGL, wGL, 1e-15);
+  double ret = fTsR->IntegralFast(nGL, xGL, wGL, 0, tsR);
+  //double ret = fTsR->Integral(0, tsR);
+  return ret;
 }
 
 double Functions::TsallisRapBase(double* x, double* p) {  // x = y, p = [pT]
   double y(x[0]);
-  fTsPhi->FixParameter(0, p[0]);
-  fTsPhi->FixParameter(1, y);
-  double phiInt = fTsPhi->Integral(-TMath::Pi(), TMath::Pi());
+  fTsPhi->SetParameters(p[0], y);
+  fTsPhi->CalcGaussLegendreSamplingPoints(nGL, xGL, wGL, 1e-15);
+  double phiInt = fTsPhi->IntegralFast(nGL, xGL, wGL, -TMath::Pi(), TMath::Pi());
+  //double phiInt = fTsPhi->Integral(-TMath::Pi(), TMath::Pi());
   return cosh(y) * phiInt;
 }
 
 double Functions::Tsallis(double* x, double* p) {  // x = pT
   double pT(x[0]);
   double mT = sqrt(pT*pT+mh*mh);
-  fTsRap->FixParameter(0, pT);
-  return pT * mT * fTsRap->Integral(-1., 1.);
+  fTsRap->SetParameter(0, pT);
+  fTsRap->CalcGaussLegendreSamplingPoints(nGL, xGL, wGL, 1e-15);
+  double ret = pT * mT * fTsRap->IntegralFast(nGL, xGL, wGL, -1., 1.);
+  //double ret = pT * mT * fTsRap->Integral(-1., 1.);
+  return ret;
 }

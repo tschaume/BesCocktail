@@ -10,6 +10,8 @@
 using std::string;
 using std::vector;
 
+const int nGL = 10;  // Gauss-Legendre sample points
+
 class Functions {
   private:
     string particle;
@@ -32,9 +34,13 @@ class Functions {
     double tsb;   // average flow velocity
     double tsbS;  // surface flow velocity
     double tsR;   // hard-spherical R (surface)
+    double tsn;   // order of flow profile
     TF1* fTsR;  // radial Integrand
     TF1* fTsPhi;  // azimuthal Integrand
     TF1* fTsRap;  // rapidity Integrand
+    // Gauss-Legendre n-point quadrature formula:
+    double xGL[nGL];  // abscissa
+    double wGL[nGL];  // weight
 
     double HagedornPower(const double&);
     double getCrystalA(const double&, const double&);
