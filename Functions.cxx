@@ -23,13 +23,13 @@ Functions::Functions(const std::string& p, const double& e)
   } else {
     fF2 = new TF1("fF2", this, &Functions::otherF2, Utils::mMin, mh-mhdec, 0);
   }
-  // tsallis parameters
-  tsT = 0.1191;
-  tsb = 0.3974;
-  tsbS = 0.5961;
-  tsR = 1.;
-  tsq = 1.0132;
-  tsn = 1. / (tsq - 1.); //tsb/(tsbS-tsb) - 1.;  //2*(tsbS/tsb-1.);
+  // tsallis parameters and functions
+  tsT = dbm->getTsallisPar(energy, "T");
+  tsb = dbm->getTsallisPar(energy, "beta");
+  tsbS = dbm->getTsallisPar(energy, "betaS");
+  tsR = dbm->getTsallisPar(energy, "R");
+  tsq = dbm->getTsallisPar(energy, "q");
+  tsn = dbm->getTsallisPar(energy, "n");//1. / (tsq - 1.); //tsb/(tsbS-tsb) - 1.;  //2*(tsbS/tsb-1.);
   fTsR = new TF1("fTsR", this, &Functions::TsallisRadialBase, 0, tsR, 3);
   fTsPhi = new TF1("fTsPhi", this, &Functions::TsallisPhiBase, -TMath::Pi(), TMath::Pi(), 2);
   fTsRap = new TF1("fTsRap", this, &Functions::TsallisRapBase, -1, 1, 1);
