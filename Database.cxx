@@ -82,6 +82,14 @@ void DatabaseManager::print() {
     BOOST_FOREACH(double n, mDB.mHgd[k]) { cout << n << " "; }
     cout << endl;
   }
+  cout << "=== Tsallis Parameters ===" << endl;
+  BOOST_FOREACH(double e, mDB.mTsa | ad::map_keys) {
+    cout << "  " << e << ": ";
+    BOOST_FOREACH(string s, mDB.mTsa[e] | ad::map_keys) {
+      cout << s << "=" << mDB.mTsa[e][s] << " ";
+    }
+    cout << endl;
+  }
   cout << "=== Invariant Yields ===" << endl;
   BOOST_FOREACH(double e, mDB.mYld | ad::map_keys) {
     cout << "  " << e << ": ";

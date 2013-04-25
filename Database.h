@@ -24,6 +24,7 @@ struct Database {
   PrtType mPrt;
   StrVecTypeD mHgd;
   YldType mYld;
+  YldType mTsa;
   YldType mCcb;
   bool operator==(const Database& db) const { return true; }
 };
@@ -36,6 +37,7 @@ namespace YAML {
       node.push_back(db.mPrt);
       node.push_back(db.mHgd);
       node.push_back(db.mYld);
+      node.push_back(db.mTsa);
       node.push_back(db.mCcb);
       return node;
     }
@@ -44,8 +46,9 @@ namespace YAML {
       db.mHdr = node[0].as<StrVecTypeD>();  // Header
       db.mPrt = node[1].as<PrtType>();  // Particle Properties
       db.mHgd = node[2].as<StrVecTypeD>();  // Hagedorn
-      db.mYld = node[3].as<YldType>();  // Yields
-      db.mCcb = node[4].as<YldType>();  // values for ccbar
+      db.mTsa = node[3].as<YldType>();  // Tsallis
+      db.mYld = node[4].as<YldType>();  // Yields
+      db.mCcb = node[5].as<YldType>();  // values for ccbar
       return true;
     }
   };
@@ -91,6 +94,7 @@ class DatabaseManager {
     double getCcbarBrRatio(const double& e) {
       return mDB.mCcb[e]["ccX"]/mDB.mCcb[e]["totX"];
     }
+    double getTsallisPar(const double& e, const string& s) { return mDB.mTsa[e][s]; }
 
 };
 #endif  // STROOT_BESCOCKTAIL_DATABASE_H_
