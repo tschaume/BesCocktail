@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
       { 0.119, 0.282, 0.282/1.5, 1.0, 1.066, 1.0 },  // 40-60%
       { 0.114, 0.000, 0.000/1.5, 1.0, 1.086, 1.0 }   // 60-80%
     };
-    double yld[nC] = {};
+    //double yld[nC] = {};
 
     TCanvas* c = new TCanvas("c" , "", 1);
     c->DrawFrame(0, 1e-7, 3, 0.1);
@@ -32,8 +32,8 @@ int main(int argc, char **argv) {
       fp[i] = new Functions(p[i]);
       fPt[i] = new TF1(Form("fPt[%d]", i), fp[i], &Functions::Tsallis, 0, 10, 0);
       fPt[i]->SetNpx(100);
-      if ( i == 0 ) hwSum = (TH1D*)fPt[i]->GetHistogram()->Scale(yld[i]);
-      else hwSum->Add((TH1D*)fPt[i]->GetHistogram()->Scale(yld[i]));
+      //if ( i == 0 ) hwSum = (TH1D*)fPt[i]->GetHistogram()->Scale(yld[i]);
+      //else hwSum->Add((TH1D*)fPt[i]->GetHistogram()->Scale(yld[i]));
       fPt[i]->Draw("same");
       fPt[i]->Write();
     }
