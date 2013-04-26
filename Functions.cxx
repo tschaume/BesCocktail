@@ -3,6 +3,8 @@
 #include "StRoot/BesCocktail/Utils.h"
 #include <cmath>
 #include <TMath.h>
+#include <Math/GSLIntegrator.h>
+#include <Math/WrappedTF1.h>
 
 Functions::Functions(const std::string& p, const double& e)
 : particle(p), energy(e) {
@@ -129,14 +131,18 @@ double Functions::TsallisRadialBase(double* x, double* p) {  // x = r, p = [pT, 
   double rho = TsallisRho(r);
   double hypgeo = mT * cosh(y) * cosh(rho);
   hypgeo -= pT * sinh(rho) * cos(phi);
-  double base = r * pow(1. + (tsq-1.)/tsT * hypgeo, -1./(tsq-1.));
+  double base = cosh(y) * r * pow(1. + (tsq-1.)/tsT * hypgeo, -1./(tsq-1.));
   return base;
 }
 
 double Functions::TsallisPhiBase(double* x, double* p) {  // x = phi, p = [pT, y]
   fTsR->SetParameters(p[0], p[1], x[0]);
-  fTsR->CalcGaussLegendreSamplingPoints(nGL, xGL, wGL, 1e-15);
-  double ret = fTsR->IntegralFast(nGL, xGL, wGL, 0, tsR);
+  ROOT::Math::GSLIntegrator gslint(1e-6, 1e-6, 10000);
+  ROOT::Math::WrappedTF1 wf(*fTsR);
+  gslint.SetFunction(wf);
+  double ret = gslint.Integral(0, tsR);
+  //fTsR->CalcGaussLegendreSamplingPoints(nGL, xGL, wGL, 1e-15);
+  //double ret = fTsR->IntegralFast(nGL, xGL, wGL, 0, tsR);
   //double ret = fTsR->Integral(0, tsR);
   return ret;
 }
@@ -144,18 +150,26 @@ double Functions::TsallisPhiBase(double* x, double* p) {  // x = phi, p = [pT, y
 double Functions::TsallisRapBase(double* x, double* p) {  // x = y, p = [pT]
   double y(x[0]);
   fTsPhi->SetParameters(p[0], y);
-  fTsPhi->CalcGaussLegendreSamplingPoints(nGL, xGL, wGL, 1e-15);
-  double phiInt = fTsPhi->IntegralFast(nGL, xGL, wGL, -TMath::Pi(), TMath::Pi());
-  //double phiInt = fTsPhi->Integral(-TMath::Pi(), TMath::Pi());
-  return cosh(y) * phiInt;
+  ROOT::Math::GSLIntegrator gslint(1e-6, 1e-6, 10000);
+  ROOT::Math::WrappedTF1 wf(*fTsPhi);
+  gslint.SetFunction(wf);
+  double ret = gslint.Integral(-TMath::Pi(), TMath::Pi());
+  //fTsPhi->CalcGaussLegendreSamplingPoints(nGL, xGL, wGL, 1e-15);
+  //double ret = fTsPhi->IntegralFast(nGL, xGL, wGL, -TMath::Pi(), TMath::Pi());
+  //double ret = fTsPhi->Integral(-TMath::Pi(), TMath::Pi());
+  return ret;
 }
 
 double Functions::Tsallis(double* x, double* p) {  // x = pT
   double pT(x[0]);
   double mT = sqrt(pT*pT+mh*mh);
   fTsRap->SetParameter(0, pT);
-  fTsRap->CalcGaussLegendreSamplingPoints(nGL, xGL, wGL, 1e-15);
-  double ret = pT * mT * fTsRap->IntegralFast(nGL, xGL, wGL, -1., 1.);
+  ROOT::Math::GSLIntegrator gslint(1e-6, 1e-6, 10000);
+  ROOT::Math::WrappedTF1 wf(*fTsRap);
+  gslint.SetFunction(wf);
+  double ret = pT * mT * gslint.Integral(-6., 6);
+  //fTsRap->CalcGaussLegendreSamplingPoints(nGL, xGL, wGL, 1e-15);
+  //double ret = pT * mT * fTsRap->IntegralFast(nGL, xGL, wGL, -6., 6.);
   //double ret = pT * mT * fTsRap->Integral(-1., 1.);
   return ret;
 }
