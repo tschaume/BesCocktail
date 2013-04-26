@@ -52,7 +52,7 @@ Simulation::Simulation(const string& p, const double& e)
   // init pT distribution
   //fPt = new TF1("fPt", fp, &Functions::MtScaling, ptMin, ptMax, 0);
   fPt = new TF1("fPt", fp, &Functions::Tsallis, ptMin, ptMax, 0);
-  //fPt->SetNpx(10000);
+  fPt->SetNpx(1000);
   if ( energy != 200 ) {
     hPt = (TH1D*)fPt->GetHistogram();
   } else {
