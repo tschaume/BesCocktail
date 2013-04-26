@@ -53,10 +53,10 @@ Simulation::Simulation(const string& p, const double& e)
   //fPt = new TF1("fPt", fp, &Functions::MtScaling, ptMin, ptMax, 0);
   fPt = new TF1("fPt", fp, &Functions::Tsallis, ptMin, ptMax, 0);
   fPt->SetNpx(1000);
-  if ( energy != 200 ) {
+  //if ( energy != 200 ) {
     hPt = (TH1D*)fPt->GetHistogram();
-  } else {
 #if 0
+  } else {
     TFile* fYif = TFile::Open("root/TBWinput/mesons_baryons_noOmega_080.root", "read");
     map<string, string> mhYif;
     mhYif["pion"] = "hFit20";
@@ -72,11 +72,11 @@ Simulation::Simulation(const string& p, const double& e)
       Double_t cx = hPtInv->GetBinCenter(i);
       hPt->SetBinContent(i, cx*bc*2.*TMath::Pi());
     }
-#endif
     TFile* fYif = TFile::Open("root/AllInputPt_200GeV.root", "read");
     hPt = (TH1D*)fYif->Get(particle.c_str());
     std::cout << "hPt = " << hPt << std::endl;
   }
+#endif
 }
 
 double Simulation::getEta(const double& pT) {
