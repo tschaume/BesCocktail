@@ -30,10 +30,10 @@ class Functions {
     TF1* fF2;  // Formfactor function
     double mpi;
     double tsT;   // temperature
-    double tsq;   // degree of equilibrium
     double tsb;   // average flow velocity
     double tsbS;  // surface flow velocity
     double tsR;   // hard-spherical R (surface)
+    double tsq;   // degree of equilibrium
     double tsn;   // order of flow profile
     TF1* fTsR;  // radial Integrand
     TF1* fTsPhi;  // azimuthal Integrand
