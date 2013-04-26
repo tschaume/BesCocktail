@@ -35,6 +35,15 @@ Functions::Functions(const std::string& p, const double& e)
   fTsRap = new TF1("fTsRap", this, &Functions::TsallisRapBase, -1, 1, 1);
 }
 
+Functions::Functions(double* p)
+: tsT(p[0]), tsb(p[1]), tsbS(p[2]), tsR(p[3]), tsq(p[4]), tsn(p[5])
+{
+  mh = 0.1349766; // pion mass
+  fTsR = new TF1("fTsR", this, &Functions::TsallisRadialBase, 0, tsR, 3);
+  fTsPhi = new TF1("fTsPhi", this, &Functions::TsallisPhiBase, -TMath::Pi(), TMath::Pi(), 2);
+  fTsRap = new TF1("fTsRap", this, &Functions::TsallisRapBase, -1, 1, 1);
+}
+
 double Functions::HagedornPower(const double& x) {
   double e = exp(-vhp[1]*x-vhp[2]*x*x);
   double base = e + x / vhp[3];

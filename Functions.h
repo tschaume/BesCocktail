@@ -57,6 +57,7 @@ class Functions {
 
   public:
     Functions(const string&, const double&);
+    Functions(double* p);
     virtual ~Functions() {}
 
     double MtScaling(double*, double*);
