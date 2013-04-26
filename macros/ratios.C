@@ -30,8 +30,8 @@ void ratios(bool qm11 = true) {
   double hrX2[np] = {0.12, 0.55, 0.90, 0.90, 1.15, 3.20, 2.8, 3.3};
   double hrY1[np] = {0.80, 0.45, 0.70, 0.70, 0.70, 0.85, 0.8, 0.4};
   double hrY2[np] = {1.10, 1.05, 1.05, 1.05, 30.0, 1.10, 1.2, 1.1};
-  double hrY1_19[np] = {0.50, 0.40, 2.10, 0.45, 0.05, 0.75, 0.4, 0.45};
-  double hrY2_19[np] = {0.70, 1.05, 3.60, 1.05, 0.85, 1.30, 1.4, 1.4};
+  double hrY1_19[np] = {0.90, 0.80, 1.60, 0.8, 0.15, 0.90, 0.4, 0.70};
+  double hrY2_19[np] = {1.25, 1.20, 2.00, 1.2, 1.10, 1.25, 1.4, 1.25};
 
   // cocktail 200GeV
   TCanvas* cc200 = (TCanvas*)fMe200->Get("cCocktail");
@@ -129,6 +129,7 @@ void ratios(bool qm11 = true) {
     //hR19[i]->GetYaxis()->UnZoom();
   }
   c19->cd(8);
+  gPad->SetGrid();
   TH1D* ht19new = new TH1D("ht19new", "", 250, 0, 5);
   for (int b = 1; b <= hR19[7]->GetNbinsX(); ++b) {
     double bc = ht19->GetBinContent(b);
