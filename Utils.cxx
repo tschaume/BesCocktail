@@ -22,7 +22,7 @@ void Utils::printInfo(const int& n, const int& div) {  // div in k
 }
 
 const char* Utils::getOutFileName(const std::string& p, const double& e) {
-  std::string fn = "out/";
+  std::string fn = "out/BesCocktail/";
   fn += boost::lexical_cast<std::string>(e);
   return (fn+"/"+p+".root").c_str();
 }
