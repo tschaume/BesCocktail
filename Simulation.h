@@ -59,9 +59,6 @@ class Simulation {
     Simulation(const std::string&, const double&);
     virtual ~Simulation() {}
 
-    static double ptMin;
-    static double ptMax;
-
     void sampleInput();
     void decay();
     void smear();

@@ -5,9 +5,6 @@
 #include <TMath.h>
 #include <TFile.h>
 
-double Simulation::ptMin = 0.;
-double Simulation::ptMax = 10.;
-
 Simulation::Simulation(const string& p, const double& e)
 : particle(p), energy(e)
 {
@@ -23,7 +20,7 @@ Simulation::Simulation(const string& p, const double& e)
   // database manager & variables
   dbm = DatabaseManager::Instance();
   mass = dbm->getProperty(particle, "mass");
-  mode = dbm->getProperty(particle, "decay");
+  mode = (int)dbm->getProperty(particle, "decay");
   mass_dec = dbm->getDecayMass(particle);
   double mMax = dbm->getMaxMassBW(particle);
   mBR = dbm->getRatioBR(particle);  // dalitz br / total br
@@ -37,7 +34,7 @@ Simulation::Simulation(const string& p, const double& e)
   fM = new TF1("fM", fp, &Functions::BreitWigner, Utils::mMin, mMax, 0);
   fM->SetNpx(10000);
   hM = (TH1D*)fM->GetHistogram();
-  fRes = new TF1("fRes", fp, &Functions::MomRes, ptMin, ptMax, 0);
+  fRes = new TF1("fRes", fp, &Functions::MomRes, Utils::ptMin, Utils::ptMax, 0);
   fRes->SetNpx(10000);
   fCB = new TF1("fCB", fp, &Functions::CrystalBall2, -1., 1., 0);
   fCB->SetNpx(10000);
@@ -50,8 +47,8 @@ Simulation::Simulation(const string& p, const double& e)
   fRapJpsi->SetParameters(1., 0., 1.1);
   hRapJpsi = (TH1D*)fRapJpsi->GetHistogram();
   // init pT distribution
-  //fPt = new TF1("fPt", fp, &Functions::MtScaling, ptMin, ptMax, 0);
-  fPt = new TF1("fPt", fp, &Functions::Tsallis, ptMin, ptMax, 0);
+  //fPt = new TF1("fPt", fp, &Functions::MtScaling, Utils::ptMin, Utils::ptMax, 0);
+  fPt = new TF1("fPt", fp, &Functions::Tsallis, Utils::ptMin, Utils::ptMax, 0);
   fPt->SetNpx(1000);
   //if ( energy != 200 ) {
     hPt = (TH1D*)fPt->GetHistogram();
@@ -87,7 +84,7 @@ double Simulation::getEta(const double& pT) {
 }
 
 void Simulation::sampleInput() {
-  mPt = hPt->GetRandom(); // rndm[0]->Uniform(ptMin, ptMax);
+  mPt = hPt->GetRandom(); // rndm[0]->Uniform(Utils::ptMin, Utils::ptMax);
   mEta = getEta(mPt);  // random based on uniform y [-1,1]
   mPhi = rndm[2]->Uniform(0., Utils::twoPi);  // random phi [0,2pi]
 }

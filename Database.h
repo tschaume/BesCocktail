@@ -26,6 +26,7 @@ struct Database {
   YldType mYld;
   YldType mTsa;
   YldType mCcb;
+  StrVecTypeD mMRg;
   bool operator==(const Database& db) const { return true; }
 };
 
@@ -39,6 +40,7 @@ namespace YAML {
       node.push_back(db.mYld);
       node.push_back(db.mTsa);
       node.push_back(db.mCcb);
+      node.push_back(db.mMRg);
       return node;
     }
     static bool decode(const Node& node, Database& db) {
@@ -49,6 +51,7 @@ namespace YAML {
       db.mTsa = node[3].as<YldType>();  // Tsallis
       db.mYld = node[4].as<YldType>();  // Yields
       db.mCcb = node[5].as<YldType>();  // values for ccbar
+      db.mMRg = node[6].as<StrVecTypeD>();  // mee ranges for pt spectra
       return true;
     }
   };
@@ -75,6 +78,7 @@ class DatabaseManager {
 
     double getProperty(const string& p, const string& pr) { return mDB.mPrt[p][pr]; }
     vector<double> getHdrVar(const string& var) { return mDB.mHdr[var]; }
+    vector<double> getMRngLimits(const string& var) { return mDB.mMRg[var]; }
     vector<double> getHgd(const string& p, const double& e) {
       string key = p+"_";
       key += boost::lexical_cast<string>(e);
@@ -95,6 +99,7 @@ class DatabaseManager {
       return mDB.mCcb[e]["ccX"]/mDB.mCcb[e]["totX"];
     }
     double getTsallisPar(const double& e, const string& s) { return mDB.mTsa[e][s]; }
+    int getNrMRnges() { return (int)mDB.mMRg.size(); }
 
 };
 #endif  // STROOT_BESCOCKTAIL_DATABASE_H_

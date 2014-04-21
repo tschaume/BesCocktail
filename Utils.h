@@ -30,7 +30,10 @@ class Utils {
     static double threePi;
     static double alpha;
     static double mMin;
+    static double ptMin;
+    static double ptMax;
     static int nBins;
+    static int nBinsPt;
     static double mMax;
     static std::map<std::string, int> mColorMap;
 

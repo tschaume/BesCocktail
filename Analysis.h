@@ -21,6 +21,7 @@ class Analysis {
     double mEtaTrCut;
     double mRapPairCut;
     Float_t Mee;
+    Float_t Pt;
     Float_t ep_pt;
     Float_t ep_eta;
     Float_t em_pt;

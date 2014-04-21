@@ -42,6 +42,7 @@ bool Analysis::passCuts() {
 void Analysis::setBranchAddresses(TTree* t, bool py) {
   if ( !py ) {
     t->SetBranchAddress("eeMassR", &Mee);
+    t->SetBranchAddress("eePtR", &Pt);
     t->SetBranchAddress("ptEpR", &ep_pt);
     t->SetBranchAddress("etaEpR", &ep_eta);
     t->SetBranchAddress("ptEmR", &em_pt);
@@ -49,6 +50,7 @@ void Analysis::setBranchAddresses(TTree* t, bool py) {
     t->SetBranchAddress("eeRap", &ee_rap);
   } else {
     t->SetBranchAddress("llmass", &Mee);
+    t->SetBranchAddress("mpt", &Pt);
     t->SetBranchAddress("pospt", &ep_pt);
     t->SetBranchAddress("poseta", &ep_eta);
     t->SetBranchAddress("negpt", &em_pt);
@@ -69,6 +71,13 @@ void Analysis::loop() {
   TFile* fout = TFile::Open(Utils::getOutFileName("rawhMee",energy),"recreate");
   // charm continuum from pythia
   TH1D* mhMeePy = new TH1D("ccbar", "ccbar", Utils::nBins, 0, Utils::mMax); mhMeePy->Sumw2();
+  map<string, TH1D*> mhPtPy;
+  BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
+    string key = "ccbar_" + mr;
+    mhPtPy[key] = new TH1D(key.c_str(), key.c_str(),
+	Utils::nBinsPt, Utils::ptMin, Utils::ptMax);
+    mhPtPy[key]->Sumw2();
+  }
   if ( fpy ) {
     TTree* tpy = (TTree*)fpy->Get("meTree"); if ( !tpy ) return;
     cout << endl << "ccbar" << endl;
@@ -77,17 +86,36 @@ void Analysis::loop() {
       Utils::printInfo(n, 1000);
       tpy->GetEntry(n);
       if ( !passCuts() ) continue;
-      mhMeePy->Fill(Mee, dbm->getPyBrWeight2(ep_id, em_id));
+      double wght = dbm->getPyBrWeight2(ep_id, em_id);
+      mhMeePy->Fill(Mee, wght);
+      BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
+	vector<double> rnge = dbm->getMRngLimits(mr);
+	if ( Mee >= rnge[0] && Mee < rnge[1] ) {
+	  string key = "ccbar_" + mr;
+	  mhPtPy[key]->Fill(Pt, wght); break;
+	}
+      }
     }
     fout->cd();
     mhMeePy->Write();
+    BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
+      string key = "ccbar_" + mr;
+      mhPtPy[key]->Write();
+    }
   }
   // hadron decay contributions
   map<string, TH1D*> mhMee;
+  map<string, TH1D*> mhPt;
   BOOST_FOREACH(string p, dbm->getDB().mPrt | ad::map_keys) {
     cout << endl << p << endl;
     mhMee[p] = new TH1D(p.c_str(), p.c_str(), Utils::nBins, 0, Utils::mMax);
     mhMee[p]->Sumw2();
+    BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
+      string key = p + "_" + mr;
+      mhPt[key] = new TH1D(key.c_str(), key.c_str(),
+	  Utils::nBinsPt, Utils::ptMin, Utils::ptMax);
+      mhPt[key]->Sumw2();
+    }
     TTree* t = getTree(p); if ( !t ) return;
     setBranchAddresses(t);
     for ( Long64_t n = 0; n < t->GetEntries(); ++n ) {
@@ -95,9 +123,20 @@ void Analysis::loop() {
       t->GetEntry(n);
       if ( !passCuts() ) continue;
       mhMee[p]->Fill(Mee);
+      BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
+	vector<double> rnge = dbm->getMRngLimits(mr);
+	if ( Mee >= rnge[0] && Mee < rnge[1] ) {
+	  string key = p + "_" + mr;
+	  mhPt[key]->Fill(Pt); break;
+	}
+      }
     }
     fout->cd();
     mhMee[p]->Write();
+    BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
+      string key = p + "_" + mr;
+      mhPt[key]->Write();
+    }
   }
   fout->Close();
 }
