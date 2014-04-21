@@ -41,6 +41,7 @@ class Analysis {
     bool passCuts();
     void scale(TH1D*, const string&, const int&);
     void scalePy(TH1D*);
+    void divByCenter(TH1D*);
 
   public:
     Analysis(const double&, const string&);  // energy, pydir

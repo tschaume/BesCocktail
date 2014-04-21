@@ -148,12 +148,29 @@ void Analysis::scale(TH1D* h, const string& p, const int& n) {
   h->Scale(s);
 }
 
+void Analysis::divByCenter(TH1D* h) {
+  for ( Int_t b = 1; b <= h->GetNbinsX(); ++b ) {
+    Double_t bx = h->GetBinCenter(b);
+    Double_t bc = h->GetBinContent(b);
+    Double_t be = h->GetBinError(b);
+    h->SetBinContent(b, bc/bx);
+    h->SetBinError(b, be/bx);
+  }
+}
+
 void Analysis::genCocktail() {
   TFile* fin = TFile::Open(Utils::getOutFileName("rawhMee",energy),"read");
   if ( !fin ) return;
   TFile* fout = TFile::Open(Utils::getOutFileName("cocktail",energy),"recreate");
   TH1D* hMeeTotal = new TH1D("hCocktail", "hCocktail", Utils::nBins, 0, Utils::mMax);
   mycoll->SetHistoAtts(hMeeTotal, kRed, 1);
+  map<string, TH1D*> hPtTotal;
+  BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
+    string key = "hCocktailPt_" + mr;
+    hPtTotal[key] = new TH1D(key.c_str(), key.c_str(),
+	Utils::nBinsPt, Utils::ptMin, Utils::ptMax);
+    hPtTotal[key]->Sumw2();
+  }
   TCanvas* can = new TCanvas("cCocktail", "cocktail", 0, 0, 1000, 707);
   TH1D* h = (TH1D*)can->DrawFrame(0, 1e-6, 3.3, 20);
   mycoll->SetHistoAtts(h, 0, 0);
@@ -168,6 +185,16 @@ void Analysis::genCocktail() {
     h->DrawCopy("hsame");
     fout->cd(); h->Write();
     hMeeTotal->Add(h);
+    BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
+      string key = p + "_" + mr;
+      h = (TH1D*)fin->Get(key.c_str());
+      scale(h, p, t->GetEntries());
+      vector<double> rnge = dbm->getMRngLimits(mr);
+      h->Scale(1./(rnge[1]-rnge[0])); // divide pt spectrum by Mee width
+      divByCenter(h);
+      fout->cd(); h->Write();
+      hPtTotal["hCocktailPt_"+mr]->Add(h);
+    }
   }
   // charm continuum from pythia
   h = (TH1D*)fin->Get("ccbar");
@@ -181,8 +208,23 @@ void Analysis::genCocktail() {
     fout->cd(); h->Write();
     hMeeTotal->Add(h);
   }
+  BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
+    h = (TH1D*)fin->Get(("ccbar_"+mr).c_str());
+    if ( h ) {
+      double s = Ncoll / h->GetBinWidth(1) / Ncc * rBRcc;
+      h->Scale(s);
+      vector<double> rnge = dbm->getMRngLimits(mr);
+      s /= rnge[1]-rnge[0]; // divide pt spectrum by Mee width
+      divByCenter(h);
+      fout->cd(); h->Write();
+      hPtTotal["hCocktailPt_"+mr]->Add(h);
+    }
+  }
   hMeeTotal->Draw("hsame");
   mycoll->plotLatexLine(Form("%.0f GeV", energy), .5, .5);
   fout->cd(); hMeeTotal->Write(); can->Write();
+  BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
+    hPtTotal["hCocktailPt_"+mr]->Write();
+  }
   fout->Close();
 }
