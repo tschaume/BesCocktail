@@ -11,9 +11,9 @@ double Utils::threePi = 3.*TMath::Pi();
 double Utils::alpha = 1./137.035999174;
 double Utils::mMin = 2*emass;
 double Utils::ptMin = 0.;
-double Utils::ptMax = 1.4;
+double Utils::ptMax = 2.;
 int Utils::nBins = 1000; // 4 MeV/c2
-int Utils::nBinsPt = 56; // 25 MeV/c
+int Utils::nBinsPt = 80; // 25 MeV/c
 double Utils::mMax = 4.;
 std::map<std::string, int> Utils::mColorMap = Utils::createColorMap();
 
