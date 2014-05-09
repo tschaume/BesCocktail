@@ -23,8 +23,9 @@ struct Database {
   StrVecTypeD mHdr;
   PrtType mPrt;
   StrVecTypeD mHgd;
-  YldType mYld;
   YldType mTsa;
+  YldType mYld;
+  PrtType mRto;
   YldType mCcb;
   StrVecTypeD mMRg;
   bool operator==(const Database& db) const { return true; }
@@ -37,8 +38,9 @@ namespace YAML {
       node.push_back(db.mHdr);
       node.push_back(db.mPrt);
       node.push_back(db.mHgd);
-      node.push_back(db.mYld);
       node.push_back(db.mTsa);
+      node.push_back(db.mYld);
+      node.push_back(db.mRto);
       node.push_back(db.mCcb);
       node.push_back(db.mMRg);
       return node;
@@ -50,8 +52,9 @@ namespace YAML {
       db.mHgd = node[2].as<StrVecTypeD>();  // Hagedorn
       db.mTsa = node[3].as<YldType>();  // Tsallis
       db.mYld = node[4].as<YldType>();  // Yields
-      db.mCcb = node[5].as<YldType>();  // values for ccbar
-      db.mMRg = node[6].as<StrVecTypeD>();  // mee ranges for pt spectra
+      db.mRto = node[5].as<PrtType>();  // meson to pi ratios
+      db.mCcb = node[6].as<YldType>();  // values for ccbar
+      db.mMRg = node[7].as<StrVecTypeD>();  // mee ranges for pt spectra
       return true;
     }
   };
@@ -91,7 +94,10 @@ class DatabaseManager {
     double getMaxMassBW(const string&);
     double getRatioBR(const string&);
     double getSumBR(const string&);
-    double getdNdy(const string& p, const double& e) { return mDB.mYld[e][p]; }
+    double getdNdy(const string& p, const double& e) {
+      if ( mDB.mYld[e].count(p) > 0 ) { return mDB.mYld[e][p]; }
+      return mDB.mYld[e]["pion"] * mDB.mRto["m2pi"][p];
+    }
     double getPyBrWeight(const int& i) { return mMapCcbr[i]; }
     double getPyBrWeight2(const int&, const int&);
     double getNcoll(const double& e) { return mDB.mCcb[e]["Ncoll"]; }
