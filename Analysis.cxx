@@ -188,11 +188,10 @@ void Analysis::genCocktail() {
     BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
       string key = p + "_" + mr;
       h = (TH1D*)fin->Get(key.c_str());
-      scale(h, p, t->GetEntries());
+      scale(h, p, t->GetEntries()); // dN/dpT (dpT = constant)
       vector<double> rnge = dbm->getMRngLimits(mr);
-      h->Scale(1./(rnge[1]-rnge[0])); // divide pt spectrum by Mee width
-      divByCenter(h);
-      fout->cd(); h->Write();
+      h->Scale(1./(rnge[1]-rnge[0])); // dN/dpTdMee (dMee = constant)
+      fout->cd(); h->Write(); // single contribution no divided by pT!!
       hPtTotal["hCocktailPt_"+mr]->Add(h);
     }
   }
@@ -215,7 +214,6 @@ void Analysis::genCocktail() {
       h->Scale(s);
       vector<double> rnge = dbm->getMRngLimits(mr);
       s /= rnge[1]-rnge[0]; // divide pt spectrum by Mee width
-      divByCenter(h);
       fout->cd(); h->Write();
       hPtTotal["hCocktailPt_"+mr]->Add(h);
     }
@@ -224,6 +222,7 @@ void Analysis::genCocktail() {
   mycoll->plotLatexLine(Form("%.0f GeV", energy), .5, .5);
   fout->cd(); hMeeTotal->Write(); can->Write();
   BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
+    divByCenter(hPtTotal["hCocktailPt_"+mr]);
     hPtTotal["hCocktailPt_"+mr]->Write();
   }
   fout->Close();
