@@ -5,6 +5,8 @@
 #include <TMath.h>
 #include <TFile.h>
 
+using namespace std;
+
 Simulation::Simulation(const string& p, const double& e)
 : particle(p), energy(e)
 {
@@ -29,30 +31,53 @@ Simulation::Simulation(const string& p, const double& e)
   em = new TLorentzVector();
   dh = new TLorentzVector();  // denotes decay hadron OR photon
   dlp = new TLorentzVector();  // denotes decay lepton pair (virtual photon)
+  // root output file for input functions and histograms
+  TFile* fin = TFile::Open(
+      Utils::getOutFileName(particle, energy, "_input"), "recreate");
+  fin->cd(); TH1::AddDirectory(kFALSE);
   // init Functions
+  Int_t npx = 10000;
   fp = new Functions(particle, energy);
-  fM = new TF1("fM", fp, &Functions::BreitWigner, Utils::mMin, mMax, 0);
-  fM->SetNpx(10000);
+  string suf = particle + Form("_%.1f", energy);
+  fM = new TF1(Form("fM_%s", suf.c_str()),
+      fp, &Functions::BreitWigner, Utils::mMin, mMax, 0);
+  fM->SetNpx(npx); fM->SetTitle("BreitWigner"); fM->Write();
   hM = (TH1D*)fM->GetHistogram();
-  fRes = new TF1("fRes", fp, &Functions::MomRes, Utils::ptMin, Utils::ptMax, 0);
-  fRes->SetNpx(10000);
-  fCB = new TF1("fCB", fp, &Functions::CrystalBall2, -1., 1., 0);
-  fCB->SetNpx(10000);
+  hM->SetName(Form("hM_%s", suf.c_str())); hM->Write();
+  cout << "saved fM & hM" << endl;
+  fRes = new TF1(Form("fRes_%s", suf.c_str()),
+      fp, &Functions::MomRes, Utils::ptMin, Utils::ptMax, 0);
+  fRes->SetNpx(npx); fRes->SetTitle("MomRes"); fRes->Write();
+  cout << "saved fRes" << endl;
+  fCB = new TF1(Form("fCB_%s", suf.c_str()),
+      fp, &Functions::CrystalBall2, -1., 1., 0);
+  fCB->SetNpx(npx); fCB->SetTitle("CrystalBall2"); fCB->Write();
   hCB = (TH1D*)fCB->GetHistogram();
-  fKW = new TF1("fKW", fp, &Functions::KrollWada, Utils::mMin, mass-mass_dec, 0);
-  fKW->SetNpx(10000);
+  hCB->SetName(Form("hCB_%s", suf.c_str())); hCB->Write();
+  cout << "saved fCB & hCB" << endl;
+  fKW = new TF1(Form("fKW_%s", suf.c_str()),
+      fp, &Functions::KrollWada, Utils::mMin, mass-mass_dec, 0);
+  fKW->SetNpx(npx); fKW->SetTitle("KrollWada"); fKW->Write();
   hKW = (TH1D*)fKW->GetHistogram();
-  fRapJpsi = new TF1("fRapJpsi", "gaus", -1, 1);
-  fRapJpsi->SetNpx(10000);
-  fRapJpsi->SetParameters(1., 0., 1.1);
-  hRapJpsi = (TH1D*)fRapJpsi->GetHistogram();
+  hKW->SetName(Form("hKW_%s", suf.c_str())); hKW->Write();
+  cout << "saved fKW & hKW" << endl;
+  //fRapJpsi = new TF1("fRapJpsi", "gaus", -1, 1);
+  //fRapJpsi->SetNpx(10000);
+  //fRapJpsi->SetParameters(1., 0., 1.1);
+  //hRapJpsi = (TH1D*)fRapJpsi->GetHistogram();
   // init pT distribution
   //fPt = new TF1("fPt", fp, &Functions::MtScaling, Utils::ptMin, Utils::ptMax, 0);
-  fPt = new TF1("fPt", fp, &Functions::Tsallis, Utils::ptMin, Utils::ptMax, 0);
-  fPt->SetNpx(1000);
-  //if ( energy != 200 ) {
-    hPt = (TH1D*)fPt->GetHistogram();
+  fPt = new TF1(Form("fPt_%s", suf.c_str()),
+      fp, &Functions::Tsallis, Utils::ptMin, Utils::ptMax, 0);
+  fPt->SetNpx(500); fPt->SetTitle("TsallisBlastWave"); fPt->Write();
+  hPt = (TH1D*)fPt->GetHistogram();
+  hPt->SetName(Form("hPt_%s", suf.c_str())); hPt->Write();
+  cout << "saved fPt & hPt" << endl;
+  fin->Close();
+  cout << "fin closed" << endl;
 #if 0
+  if ( energy != 200 ) {
+    hPt = (TH1D*)fPt->GetHistogram();
   } else {
     TFile* fYif = TFile::Open("root/TBWinput/mesons_baryons_noOmega_080.root", "read");
     map<string, string> mhYif;

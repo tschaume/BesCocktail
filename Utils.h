@@ -38,6 +38,7 @@ class Utils {
     static std::map<std::string, int> mColorMap;
 
     static void printInfo(const int&, const int& div = 100);
-    static const char* getOutFileName(const std::string&, const double&);
+    static const char* getOutFileName(
+        const std::string&, const double&, const std::string& suffix = "");
 };
 #endif  // STROOT_BESCOCKTAIL_UTILS_H_

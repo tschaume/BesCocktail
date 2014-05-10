@@ -11,9 +11,9 @@ double Utils::threePi = 3.*TMath::Pi();
 double Utils::alpha = 1./137.035999174;
 double Utils::mMin = 2*emass;
 double Utils::ptMin = 0.;
-double Utils::ptMax = 2.;
+double Utils::ptMax = 5.;
 int Utils::nBins = 1000; // 4 MeV/c2
-int Utils::nBinsPt = 80; // 25 MeV/c
+int Utils::nBinsPt = 200; // 25 MeV/c
 double Utils::mMax = 4.;
 std::map<std::string, int> Utils::mColorMap = Utils::createColorMap();
 
@@ -24,8 +24,9 @@ void Utils::printInfo(const int& n, const int& div) {  // div in k
   else if ( !(n%(div*100)) ) std::cout << "." << std::flush;
 }
 
-const char* Utils::getOutFileName(const std::string& p, const double& e) {
+const char* Utils::getOutFileName(
+    const std::string& p, const double& e, const std::string& suffix) {
   std::string fn = "out/BesCocktail/";
   fn += boost::lexical_cast<std::string>(e);
-  return (fn+"/"+p+".root").c_str();
+  return (fn+"/"+p+suffix+".root").c_str();
 }
