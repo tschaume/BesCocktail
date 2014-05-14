@@ -9,7 +9,7 @@ void write(TH1D* h, const char* name, const int& energy, const char* suffix) {
 	<< bc << " "
 	<< h->GetBinWidth(b)/2. << " "
 	<< h->GetBinError(b) << " "
-	<< 0. << endl;
+	<< bc * 0.3 << endl;
     }
   }
   outData.close();
