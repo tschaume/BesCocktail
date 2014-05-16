@@ -163,6 +163,11 @@ void Analysis::genCocktail() {
   if ( !fin ) return;
   TFile* fout = TFile::Open(Utils::getOutFileName("cocktail",energy),"recreate");
   TH1D* hMeeTotal = new TH1D("hCocktail", "hCocktail", Utils::nBins, 0, Utils::mMax);
+  TH1D* hMeeTotalSysErr = new TH1D(
+      "hCocktailSysErr", "hCocktailSysErr", Utils::nBins, 0, Utils::mMax);
+  for ( Int_t b = 1; b <= hMeeTotalSysErr->GetNbinsX(); ++b ) {
+    hMeeTotalSysErr->SetBinContent(b, 0.);
+  }
   mycoll->SetHistoAtts(hMeeTotal, kRed, 1);
   map<string, TH1D*> hPtTotal;
   BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
@@ -177,6 +182,7 @@ void Analysis::genCocktail() {
   // hadron decay contributions
   BOOST_FOREACH(string p, dbm->getDB().mPrt | ad::map_keys) {
     TTree* t = getTree(p); if ( !t ) return;
+    // pT-integrated
     h = (TH1D*)fin->Get(p.c_str());
     mycoll->SetHistoAtts(h, Utils::mColorMap[p], 1);
     //h->SetFillColor(Utils::mColorMap[p]);
@@ -185,6 +191,13 @@ void Analysis::genCocktail() {
     h->DrawCopy("hsame");
     fout->cd(); h->Write();
     hMeeTotal->Add(h);
+    // systematic uncertainties
+    for ( Int_t b = 1; b <= hMeeTotalSysErr->GetNbinsX(); ++b ) {
+      Double_t be = 0.3 * h->GetBinContent(b); // TODO propagate real error estimates
+      Double_t syserr = hMeeTotalSysErr->GetBinContent(b) + be*be;
+      hMeeTotalSysErr->SetBinContent(b, syserr);
+    }
+    // pT spectra
     BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
       string key = p + "_" + mr;
       h = (TH1D*)fin->Get(key.c_str());
@@ -206,6 +219,17 @@ void Analysis::genCocktail() {
     h->DrawCopy("hsame");
     fout->cd(); h->Write();
     hMeeTotal->Add(h);
+    // systematic uncertainties for charm
+    for ( Int_t b = 1; b <= hMeeTotalSysErr->GetNbinsX(); ++b ) {
+      Double_t be = 0.5 * h->GetBinContent(b);
+      Double_t syserr = hMeeTotalSysErr->GetBinContent(b) + be*be;
+      hMeeTotalSysErr->SetBinContent(b, syserr);
+    }
+  }
+  // sqrt syst. uncertainty
+  for ( Int_t b = 1; b <= hMeeTotalSysErr->GetNbinsX(); ++b ) {
+    Double_t syserr = hMeeTotalSysErr->GetBinContent(b);
+    hMeeTotalSysErr->SetBinContent(b, sqrt(syserr));
   }
   BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
     h = (TH1D*)fin->Get(("ccbar_"+mr).c_str());
@@ -218,9 +242,10 @@ void Analysis::genCocktail() {
       hPtTotal["hCocktailPt_"+mr]->Add(h);
     }
   }
+  // draw and write
   hMeeTotal->Draw("hsame");
   mycoll->plotLatexLine(Form("%.0f GeV", energy), .5, .5);
-  fout->cd(); hMeeTotal->Write(); can->Write();
+  fout->cd(); hMeeTotal->Write(); hMeeTotalSysErr->Write(); can->Write();
   BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
     //divByCenter(hPtTotal["hCocktailPt_"+mr]);
     hPtTotal["hCocktailPt_"+mr]->Write();
