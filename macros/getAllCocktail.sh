@@ -11,4 +11,5 @@ for i in 19 27 39 62; do
   root -l -b -x -q getCocktail.C\($i,\"hCocktailPt_omega\",\"cocktail\",\"_omega_0.76-0.82\"\)
   root -l -b -x -q getCocktail.C\($i,\"hCocktailPt_phi\",\"cocktail\",\"_phi_0.98-1.06\"\)
   root -l -b -x -q getCocktail.C\($i,\"hCocktailPt_pi0\",\"cocktail\",\"_pi0_0-0.2\"\)
+  root -b -x -q -l getCocktail.C\($i,\"ccbar\",\"cocktail_contribs/ccbar\",\"\"\)
 done
