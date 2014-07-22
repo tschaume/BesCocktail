@@ -12,9 +12,9 @@ double Utils::alpha = 1./137.035999174;
 double Utils::mMin = 2*emass;
 double Utils::ptMin = 0.;
 double Utils::ptMax = 5.;
-int Utils::nBins = 1000; // 4 MeV/c2
+int Utils::nBins = 350; // 10 MeV/c2
 int Utils::nBinsPt = 200; // 25 MeV/c
-double Utils::mMax = 4.;
+double Utils::mMax = 3.5;
 std::map<std::string, int> Utils::mColorMap = Utils::createColorMap();
 
 Utils::Utils() { }
