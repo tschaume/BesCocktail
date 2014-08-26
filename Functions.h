@@ -39,8 +39,8 @@ class Functions {
     TF1* fTsPhi;  // azimuthal Integrand
     TF1* fTsRap;  // rapidity Integrand
     // Gauss-Legendre n-point quadrature formula:
-    double xGL[nGL];  // abscissa
-    double wGL[nGL];  // weight
+    //double xGL[nGL];  // abscissa
+    //double wGL[nGL];  // weight
 
     double HagedornPower(const double&);
     double getCrystalA(const double&, const double&);

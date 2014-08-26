@@ -35,16 +35,16 @@ class Simulation {
     TF1* fRes;  // pt momentum resolution
     TF1* fCB;  // CrystalBall for momentum smearing
     TF1* fKW;  // KrollWada for dalitz decays
-    TF1* fRapJpsi;  // jpsi gaussian rapidity distribution
+    //TF1* fRapJpsi;  // jpsi gaussian rapidity distribution
     std::vector<double> vfill;
     Float_t* afill;
     bool isDhKin;  // flag true if decay hadron kinematics
-    TH1D* hPtInv;  // test input pT histo
+    //TH1D* hPtInv;  // test input pT histo
     TH1D* hPt;  // pT histo (hPtInv*pT@200)
     TH1D* hM;
     TH1D* hCB;
     TH1D* hKW;
-    TH1D* hRapJpsi;
+    //TH1D* hRapJpsi;
 
     double getEta(const double&);
     void applyMomSmear(TLorentzVector&);
