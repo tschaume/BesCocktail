@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
 
     TCanvas* c = new TCanvas("c" , "", 1);
     c->DrawFrame(0, 1e-7, 3, 0.1);
-    TH1D* hwSum;
+    TH1D* hwSum = NULL;
     for ( int i = 0; i < nC; ++i ) { 
       fp[i] = new Functions(p[i]);
       fPt[i] = new TF1(Form("fPt[%d]", i), fp[i], &Functions::Tsallis, 0, 10, 0);
