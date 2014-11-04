@@ -28,5 +28,6 @@ const char* Utils::getOutFileName(
     const std::string& p, const double& e, const std::string& suffix) {
   std::string fn = "out/BesCocktail/";
   fn += boost::lexical_cast<std::string>(e);
-  return (fn+"/"+p+suffix+".root").c_str();
+  fn += "/"+p+suffix+".root";
+  return fn.c_str();
 }

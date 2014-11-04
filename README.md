@@ -46,7 +46,7 @@ install & usage
 - get pythia ccbar [simulation](http://www.star.bnl.gov/protected/lfspectra/huck/pythia/) input files
 - simulate particles:
   `./build/bin/cbes -e 200 -v <particle>`
-  `<particle>` = pion, eta, omega, phi, jpsi
+  `<particle>` = pion, eta, etap, rho, omega, phi, jpsi
 - loop and generate output histos:
   `./build/bin/cbes -e 200 -l --pyfile <file> ana`
 - use `--db` to set link to db.yml file

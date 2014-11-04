@@ -32,8 +32,8 @@ Simulation::Simulation(const string& p, const double& e)
   dh = new TLorentzVector();  // denotes decay hadron OR photon
   dlp = new TLorentzVector();  // denotes decay lepton pair (virtual photon)
   // root output file for input functions and histograms
-  TFile* fin = TFile::Open(
-      Utils::getOutFileName(particle, energy, "_input"), "recreate");
+  const char* fn = Utils::getOutFileName(particle, energy, "_input");
+  TFile* fin = TFile::Open(fn , "recreate");
   fin->cd(); TH1::AddDirectory(kFALSE);
   // init Functions
   Int_t npx = 10000;

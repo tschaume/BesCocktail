@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
 
       // init output
       const char* fn = Utils::getOutFileName(clopts->particle, clopts->energy);
-      TFile* fout = new TFile(fn, "recreate"); fout->cd();
+      TFile* fout = TFile::Open(fn, "recreate"); fout->cd();
       const char* nt_name = clopts->particle.c_str();
       const char* nt_vars =
         "ptVM:etaVM:phiVM:mVM:"
