@@ -1,9 +1,10 @@
 #!/bin/bash
 mkdir -v cocktail_contribs
-for i in eta etap jpsi rho omega phi pion ccbar; do
-  root -b -x -q -l getCocktail.C\(19,\"$i\",\"cocktail_contribs/$i\",\"\"\)
-done
+root -b -x -q -l getCocktail.C\(200,\"rho\",\"cocktail_contribs/rho\",\"\"\)
 for i in 19 27 39 62; do
+  for p in pion eta etap rho omega phi jpsi; do
+    root -l -b -x -q getCocktail.C\($i,\"$p\",\"cocktail_contribs/$p\",\"\"\)
+  done
   root -l -b -x -q getCocktail.C\($i,\"hCocktail\",\"cocktail\",\"\"\)
   root -l -b -x -q getCocktail.C\($i,\"hCocktailPt_IMR\",\"cocktail\",\"_IMR_1.2-2.5\"\)
   root -l -b -x -q getCocktail.C\($i,\"hCocktailPt_jpsi\",\"cocktail\",\"_jpsi_2.97-3.22\"\)

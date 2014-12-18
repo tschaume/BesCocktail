@@ -21,5 +21,6 @@ void getCocktail(const Int_t& energy, const string& in, const string& out, const
   TFile* f = TFile::Open(Form("%d/cocktail.root", energy), "read");
   TH1D* h = (TH1D*)f->Get(in.c_str());
   TH1D* hSysErr = (TH1D*)f->Get((in+"SysErr").c_str());
+  if ( in == "ccbar" ) { h->Rebin(10)->Scale(1./10.); }
   write(h, out.c_str(), energy, suffix.c_str(), hSysErr);
 }
