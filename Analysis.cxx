@@ -198,12 +198,14 @@ void Analysis::genCocktail() {
     scale(h, p, t->GetEntries());
     h->DrawCopy("hsame");
     fout->cd(); h->Write();
-    hMeeTotal->Add(h);
-    // systematic uncertainties
-    for ( Int_t b = 1; b <= hMeeTotalSysErr->GetNbinsX(); ++b ) {
-      Double_t be = 0.3 * h->GetBinContent(b); // TODO: don't use lump-sum 30%
-      Double_t syserr = hMeeTotalSysErr->GetBinContent(b) + be*be;
-      hMeeTotalSysErr->SetBinContent(b, syserr);
+    if ( p != "rho" ) {
+      hMeeTotal->Add(h);
+      // systematic uncertainties
+      for ( Int_t b = 1; b <= hMeeTotalSysErr->GetNbinsX(); ++b ) {
+        Double_t be = 0.3 * h->GetBinContent(b); // TODO: don't use lump-sum 30%
+        Double_t syserr = hMeeTotalSysErr->GetBinContent(b) + be*be;
+        hMeeTotalSysErr->SetBinContent(b, syserr);
+      }
     }
     // pT spectra
     BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
@@ -213,13 +215,15 @@ void Analysis::genCocktail() {
       vector<double> rnge = dbm->getMRngLimits(mr);
       h->Scale(1./(rnge[1]-rnge[0])); // dN/dpTdMee (dMee = constant)
       fout->cd(); h->Write(); // single contribution not divided by pT!!
-      key = "hCocktailPt_"+mr;
-      hPtTotal[key]->Add(h);
-      // systematic uncertainties
-      for ( Int_t b = 1; b <= hPtTotalSysErr[key+"_SysErr"]->GetNbinsX(); ++b ) {
-        Double_t be = 0.3 * h->GetBinContent(b); // TODO: don't use lump-sum 30%
-        Double_t syserr = hPtTotalSysErr[key+"_SysErr"]->GetBinContent(b) + be*be;
-        hPtTotalSysErr[key+"_SysErr"]->SetBinContent(b, syserr);
+      if ( p != "rho" ) {
+        key = "hCocktailPt_"+mr;
+        hPtTotal[key]->Add(h);
+        // systematic uncertainties
+        for ( Int_t b = 1; b <= hPtTotalSysErr[key+"_SysErr"]->GetNbinsX(); ++b ) {
+          Double_t be = 0.3 * h->GetBinContent(b); // TODO: don't use lump-sum 30%
+          Double_t syserr = hPtTotalSysErr[key+"_SysErr"]->GetBinContent(b) + be*be;
+          hPtTotalSysErr[key+"_SysErr"]->SetBinContent(b, syserr);
+        }
       }
     }
   }
