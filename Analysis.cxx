@@ -22,7 +22,7 @@ Analysis::Analysis(const double& e, const string& s) : energy(e), pyfile(s) {
   mRapPairCut = vcuts[2];
   // pythia input and Ncc
   fpy = TFile::Open(pyfile.c_str(),"read");
-  if ( fpy ) Ncc = ((TH1F*)fpy->Get("eventCounter"))->GetBinContent(2);
+  if ( fpy ) Ncc = ((TH1F*)fpy->Get("eventCounter"))->GetBinContent(3);
   Ncoll = dbm->getNcoll(energy);
   rBRcc = dbm->getCcbarBrRatio(energy);
 }
