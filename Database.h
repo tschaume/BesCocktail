@@ -104,6 +104,9 @@ class DatabaseManager {
     double getCcbarBrRatio(const double& e) {
       return mDB.mCcb[e]["ccX"]/mDB.mCcb[e]["totX"];
     }
+    double getCcbarXRelErr(const double& e) {
+      return mDB.mCcb[e]["ccXe"]/mDB.mCcb[e]["ccX"];
+    }
     double getTsallisPar(const double& e, const string& s) { return mDB.mTsa[e][s]; }
     int getNrMRnges() { return (int)mDB.mMRg.size(); }
 

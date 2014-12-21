@@ -25,6 +25,7 @@ Analysis::Analysis(const double& e, const string& s) : energy(e), pyfile(s) {
   if ( fpy ) Ncc = ((TH1F*)fpy->Get("eventCounter"))->GetBinContent(3);
   Ncoll = dbm->getNcoll(energy);
   rBRcc = dbm->getCcbarBrRatio(energy);
+  rel_ccXe = dbm->getCcbarXRelErr(energy);
 }
 
 bool Analysis::passTrackCuts(const Float_t& pt, const Float_t& eta) {
@@ -221,7 +222,7 @@ void Analysis::genCocktail() {
     hMeeTotal->Add(h);
     // systematic uncertainties for charm
     for ( Int_t b = 1; b <= hMeeTotalSysErr->GetNbinsX(); ++b ) {
-      Double_t be = 0.5 * h->GetBinContent(b);
+      Double_t be = rel_ccXe * h->GetBinContent(b);
       Double_t syserr = hMeeTotalSysErr->GetBinContent(b) + be*be;
       hMeeTotalSysErr->SetBinContent(b, syserr);
     }

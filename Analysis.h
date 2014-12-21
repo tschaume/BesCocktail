@@ -34,6 +34,7 @@ class Analysis {
     double Ncc;
     double Ncoll;
     double rBRcc;
+    double rel_ccXe;
 
     TTree* getTree(const string&);
     void setBranchAddresses(TTree*, bool py = false);
