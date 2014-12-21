@@ -171,11 +171,18 @@ void Analysis::genCocktail() {
   }
   mycoll->SetHistoAtts(hMeeTotal, kRed, 1);
   map<string, TH1D*> hPtTotal;
+  map<string, TH1D*> hPtTotalSysErr;
   BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
     string key = "hCocktailPt_" + mr;
     hPtTotal[key] = new TH1D(key.c_str(), key.c_str(),
 	Utils::nBinsPt, Utils::ptMin, Utils::ptMax);
     hPtTotal[key]->Sumw2();
+    key += "_SysErr";
+    hPtTotalSysErr[key] = new TH1D(key.c_str(), key.c_str(),
+	Utils::nBinsPt, Utils::ptMin, Utils::ptMax);
+    for ( Int_t b = 1; b <= hPtTotalSysErr[key]->GetNbinsX(); ++b ) {
+      hPtTotalSysErr[key]->SetBinContent(b, 0.);
+    }
   }
   TCanvas* can = new TCanvas("cCocktail", "cocktail", 0, 0, 1000, 707);
   TH1D* h = (TH1D*)can->DrawFrame(0, 1e-6, 3.3, 20);
@@ -194,7 +201,7 @@ void Analysis::genCocktail() {
     hMeeTotal->Add(h);
     // systematic uncertainties
     for ( Int_t b = 1; b <= hMeeTotalSysErr->GetNbinsX(); ++b ) {
-      Double_t be = 0.3 * h->GetBinContent(b); // TODO propagate real error estimates
+      Double_t be = 0.3 * h->GetBinContent(b); // TODO: don't use lump-sum 30%
       Double_t syserr = hMeeTotalSysErr->GetBinContent(b) + be*be;
       hMeeTotalSysErr->SetBinContent(b, syserr);
     }
@@ -206,7 +213,14 @@ void Analysis::genCocktail() {
       vector<double> rnge = dbm->getMRngLimits(mr);
       h->Scale(1./(rnge[1]-rnge[0])); // dN/dpTdMee (dMee = constant)
       fout->cd(); h->Write(); // single contribution not divided by pT!!
-      hPtTotal["hCocktailPt_"+mr]->Add(h);
+      key = "hCocktailPt_"+mr;
+      hPtTotal[key]->Add(h);
+      // systematic uncertainties
+      for ( Int_t b = 1; b <= hPtTotalSysErr[key+"_SysErr"]->GetNbinsX(); ++b ) {
+        Double_t be = 0.3 * h->GetBinContent(b); // TODO: don't use lump-sum 30%
+        Double_t syserr = hPtTotalSysErr[key+"_SysErr"]->GetBinContent(b) + be*be;
+        hPtTotalSysErr[key+"_SysErr"]->SetBinContent(b, syserr);
+      }
     }
   }
   // charm continuum from pythia
@@ -233,6 +247,7 @@ void Analysis::genCocktail() {
     hMeeTotalSysErr->SetBinContent(b, sqrt(syserr));
   }
   BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
+    string key = "hCocktailPt_"+mr;
     h = (TH1D*)fin->Get(("ccbar_"+mr).c_str());
     if ( h ) {
       double s = Ncoll / h->GetBinWidth(1) / Ncc * rBRcc;
@@ -240,7 +255,18 @@ void Analysis::genCocktail() {
       vector<double> rnge = dbm->getMRngLimits(mr);
       s /= rnge[1]-rnge[0]; // divide pt spectrum by Mee width
       fout->cd(); h->Write();
-      hPtTotal["hCocktailPt_"+mr]->Add(h);
+      hPtTotal[key]->Add(h);
+      // systematic uncertainties for charm
+      for ( Int_t b = 1; b <= hPtTotalSysErr[key+"_SysErr"]->GetNbinsX(); ++b ) {
+        Double_t be = rel_ccXe * h->GetBinContent(b);
+        Double_t syserr = hPtTotalSysErr[key+"_SysErr"]->GetBinContent(b) + be*be;
+        hPtTotalSysErr[key+"_SysErr"]->SetBinContent(b, syserr);
+      }
+    }
+    // pT sqrt syst. uncertainty
+    for ( Int_t b = 1; b <= hPtTotalSysErr[key+"_SysErr"]->GetNbinsX(); ++b ) {
+      Double_t syserr = hPtTotalSysErr[key+"_SysErr"]->GetBinContent(b);
+      hPtTotalSysErr[key+"_SysErr"]->SetBinContent(b, sqrt(syserr));
     }
   }
   // draw and write
@@ -250,6 +276,7 @@ void Analysis::genCocktail() {
   BOOST_FOREACH(string mr, dbm->getDB().mMRg | ad::map_keys) {
     //divByCenter(hPtTotal["hCocktailPt_"+mr]);
     hPtTotal["hCocktailPt_"+mr]->Write();
+    hPtTotalSysErr["hCocktailPt_"+mr+"_SysErr"]->Write();
   }
   fout->Close();
 }
