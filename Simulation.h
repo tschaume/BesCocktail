@@ -23,6 +23,7 @@ class Simulation {
     double mEta;  // hadron eta
     double mPhi;  // hadron phi
     double mBR;  // fraction of dalitz in total branching ratio (ee+dalitz)
+    double sigma0; // crystal ball gaussian width
     int mode;  // decay mode
     DatabaseManager* dbm;
     TLorentzVector* ep;

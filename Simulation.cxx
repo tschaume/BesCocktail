@@ -26,6 +26,7 @@ Simulation::Simulation(const string& p, const double& e)
   mass_dec = dbm->getDecayMass(particle);
   double mMax = dbm->getMaxMassBW(particle);
   mBR = dbm->getRatioBR(particle);  // dalitz br / total br
+  sigma0 = dbm->getHdrVar("crystal")[1];
   // e+/e-/daughter-hadron lorentz vectors
   ep = new TLorentzVector();
   em = new TLorentzVector();
@@ -190,7 +191,7 @@ void Simulation::decay() { // decay mode = isTwoBody + 10 * isDalitz
 
 void Simulation::applyMomSmear(TLorentzVector& l) {
   double ptrc = l.Pt();
-  ptrc *= 1 + hCB->GetRandom() * fRes->Eval(l.Pt())/0.01;
+  ptrc *= 1 + hCB->GetRandom() * fRes->Eval(l.Pt())/sigma0;
   l.SetPtEtaPhiM(ptrc, l.Eta(), l.Phi(), Utils::emass);
 }
 
