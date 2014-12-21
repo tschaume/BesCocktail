@@ -101,7 +101,7 @@ class DatabaseManager {
     double getPyBrWeight(const int& i) { return mMapCcbr[i]; }
     double getPyBrWeight2(const int&, const int&);
     double getNcoll(const double& e) { return mDB.mCcb[e]["Ncoll"]; }
-    double getCcbarBrRatio(const double& e) {
+    double getCcbarXRatio(const double& e) {
       return mDB.mCcb[e]["ccX"]/mDB.mCcb[e]["totX"];
     }
     double getCcbarXRelErr(const double& e) {

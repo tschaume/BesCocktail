@@ -24,7 +24,7 @@ Analysis::Analysis(const double& e, const string& s) : energy(e), pyfile(s) {
   fpy = TFile::Open(pyfile.c_str(),"read");
   if ( fpy ) Ncc = ((TH1F*)fpy->Get("eventCounter"))->GetBinContent(3);
   Ncoll = dbm->getNcoll(energy);
-  rBRcc = dbm->getCcbarBrRatio(energy);
+  rXcc = dbm->getCcbarXRatio(energy);
   rel_ccXe = dbm->getCcbarXRelErr(energy);
 }
 
@@ -229,7 +229,7 @@ void Analysis::genCocktail() {
     mycoll->SetHistoAtts(h, Utils::mColorMap["ccbar"], 1);
     //h->SetFillColor(Utils::mColorMap["ccbar"]);
     //h->SetFillStyle(3003);
-    double s = Ncoll / h->GetBinWidth(1) / Ncc * rBRcc;
+    double s = Ncoll / h->GetBinWidth(1) / Ncc * rXcc;
     h->Scale(s);
     h->DrawCopy("hsame");
     fout->cd(); h->Write();
@@ -250,7 +250,7 @@ void Analysis::genCocktail() {
     string key = "hCocktailPt_"+mr;
     h = (TH1D*)fin->Get(("ccbar_"+mr).c_str());
     if ( h ) {
-      double s = Ncoll / h->GetBinWidth(1) / Ncc * rBRcc;
+      double s = Ncoll / h->GetBinWidth(1) / Ncc * rXcc;
       h->Scale(s);
       vector<double> rnge = dbm->getMRngLimits(mr);
       s /= rnge[1]-rnge[0]; // divide pt spectrum by Mee width

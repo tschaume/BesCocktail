@@ -33,7 +33,7 @@ class Analysis {
     TFile* fpy;
     double Ncc;
     double Ncoll;
-    double rBRcc;
+    double rXcc;
     double rel_ccXe;
 
     TTree* getTree(const string&);
