@@ -70,8 +70,7 @@ class DatabaseManager {
     void initCcbrMap();
 
   public:
-    static DatabaseManager* Instance(const string&, bool bWrite = false);
-    static DatabaseManager* Instance() { return mDbm; }
+    static DatabaseManager* Instance(const string& = "", bool bWrite = false);
     virtual ~DatabaseManager() {}
 
     Database& getDB() { return mDB; }

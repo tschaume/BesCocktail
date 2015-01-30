@@ -1,9 +1,11 @@
 // Copyright (c) 2013 Patrick Huck
 #include "StRoot/BesCocktail/Database.h"
 #include <fstream>
+#include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
 #include <boost/range/adaptor/map.hpp>
 
+namespace fs = boost::filesystem;
 namespace ad = boost::adaptors;
 using std::cout;
 using std::endl;
@@ -15,6 +17,15 @@ DatabaseManager::DatabaseManager(const string& d, bool bWrite)
 {
   if ( !bWrite ) {
     // load database (set mDB)
+    if ( dbfile == "" ) {
+      if ( fs::exists("db.yml") ) {
+        cout << "WARNING: using db.yml as database" << endl;
+        dbfile = "db.yml";
+      } else {
+        cout << "ERROR: not database input file provided and db.yml not found" << endl;
+        exit(0);
+      }
+    }
     YAML::Node nodeIn = YAML::LoadFile(dbfile);
     mDB = nodeIn.as<Database>();
     initCcbrMap();
