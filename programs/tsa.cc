@@ -6,7 +6,7 @@
 #include <TFile.h>
 #include <TH1D.h>
 #include <TMath.h>
-#include <TGraph.h>
+#include <TGraphErrors.h>
 #include <boost/foreach.hpp>
 #include <boost/range/adaptor/map.hpp>
 
@@ -42,7 +42,10 @@ int main(int argc, char **argv) {
         string hname = particle_mod;
         if ( energy != 27 ) { hname += Form("_spectra_%d_MinBias", energy); }
         else { hname += Form("_pTspectra_%dgev_MinBias", energy); }
-        TF1* func_dN2pipTdpTdy_Joey = ((TGraph*)f->Get(hname.c_str()))->GetFunction("pTTBW");
+        TGraphErrors* dN2pipTdpTdy_Data = (TGraphErrors*)f->Get(hname.c_str());
+        dN2pipTdpTdy_Data->SetName(Form("2pipTdpTdy_Data_%s", suf.c_str()));
+        dN2pipTdpTdy_Data->Write();
+        TF1* func_dN2pipTdpTdy_Joey = dN2pipTdpTdy_Data->GetFunction("pTTBW");
         double norm_factor = func_dN2pipTdpTdy_Joey->GetParameter(3)/0.8;
         std::cout << norm_factor << std::endl;
         TH1* dN2pipTdpTdy_Joey = func_dN2pipTdpTdy_Joey->GetHistogram();
