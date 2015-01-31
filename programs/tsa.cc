@@ -2,6 +2,7 @@
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 
 #include <string>
+#include <fstream>
 #include <TF1.h>
 #include <TFile.h>
 #include <TH1D.h>
@@ -15,6 +16,22 @@
 #include "StRoot/BesCocktail/Database.h"
 
 namespace ad = boost::adaptors;
+using namespace std;
+
+void write(TGraphErrors* gr, const string type, const char* particle, const int& energy) {
+  ofstream outData;
+  string filebase = "../docs_data/dielectron_data_protected/examples/gp_tbw/input/";
+  outData.open(Form("%s%s_%s_%d.dat", filebase.c_str(), type.c_str(), particle, energy));
+  Double_t* aX = gr->GetX();
+  Double_t* aY = gr->GetY();
+  Double_t* aEY = gr->GetEY();
+  for ( Int_t n = 0; n < gr->GetN(); ++n ) {
+    if ( aX[n] > 2. ) break;
+    double err = (type == "data") ? aEY[n] : 0;
+    outData << aX[n] << " " << aY[n] << " 0 " << err << " 0" << endl;
+  }
+  outData.close();
+}
 
 int main(int argc, char **argv) {
   try {
@@ -24,7 +41,7 @@ int main(int argc, char **argv) {
     int energies[nEnergies] = {19, 27, 39, 62};
     TFile* fin = TFile::Open("out/TsallisBlastWaveFits/tbw.root", "recreate");
     fin->cd(); TH1::AddDirectory(kFALSE);
-    std::map<std::string, double> dndy19;
+    map<string, double> dndy19;
     dndy19["pim"] = 52.7915; dndy19["pip"] = dndy19["pim"];
     dndy19["km"] = 6.0419; dndy19["kp"] = 9.3053;
     dndy19["p"] = 11.1375; dndy19["pbar"] = 1.49875;
@@ -51,6 +68,7 @@ int main(int argc, char **argv) {
           TGraphErrors* dN2pipTdpTdy_Data = (TGraphErrors*)f->Get(hname.c_str());
           dN2pipTdpTdy_Data->SetName(Form("2pipTdpTdy_Data_%s", suf.c_str()));
           dN2pipTdpTdy_Data->Write();
+          write(dN2pipTdpTdy_Data, "data", particle.c_str(), energy);
           TF1* func_dN2pipTdpTdy_Joey = dN2pipTdpTdy_Data->GetFunction("pTTBW");
           norm_factor = func_dN2pipTdpTdy_Joey->GetParameter(3)/0.8;
           TH1* dN2pipTdpTdy_Joey = func_dN2pipTdpTdy_Joey->GetHistogram();
@@ -68,7 +86,7 @@ int main(int argc, char **argv) {
         if ( energy == 19 ) {
           norm_factor = dndy19[particle] / dN_Pat->Integral();
         }
-        std::cout << norm_factor << std::endl;
+        cout << norm_factor << endl;
         TH1D* dN2pipTdpTdy_Pat = (TH1D*)dN_Pat->Clone(Form("dN2pipTdpTdy_Pat_%s", suf.c_str()));
         for ( Int_t bx = 1; bx <= dN2pipTdpTdy_Pat->GetNbinsX(); ++bx) {
           Double_t pT = dN2pipTdpTdy_Pat->GetBinCenter(bx);
@@ -76,7 +94,9 @@ int main(int argc, char **argv) {
           dN2pipTdpTdy_Pat->SetBinContent(bx, norm_factor*bc/pT);
         }
         dN2pipTdpTdy_Pat->Write();
-        std::cout << energy << " " << particle << " done" << std::endl;
+        TGraphErrors* gr_dN2pipTdpTdy_Pat = new TGraphErrors(dN2pipTdpTdy_Pat);
+        write(gr_dN2pipTdpTdy_Pat, "tbw", particle.c_str(), energy);
+        cout << energy << " " << particle << " done" << endl;
       }
     }
 
