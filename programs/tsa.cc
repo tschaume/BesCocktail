@@ -19,11 +19,15 @@ namespace ad = boost::adaptors;
 int main(int argc, char **argv) {
   try {
     DatabaseManager* dbm = DatabaseManager::Instance();
-    // TODO: 19 GeV from Bingchu Text Files
-    const int nEnergies = 3;
-    int energies[nEnergies] = {27, 39, 62};
+    // TODO: 19 GeV data points
+    const int nEnergies = 4;
+    int energies[nEnergies] = {19, 27, 39, 62};
     TFile* fin = TFile::Open("out/TsallisBlastWaveFits/tbw.root", "recreate");
     fin->cd(); TH1::AddDirectory(kFALSE);
+    std::map<std::string, double> dndy19;
+    dndy19["pim"] = 52.7915; dndy19["pip"] = dndy19["pim"];
+    dndy19["km"] = 6.0419; dndy19["kp"] = 9.3053;
+    dndy19["p"] = 11.1375; dndy19["pbar"] = 1.49875;
 
     for ( int eidx = 0; eidx < nEnergies; ++eidx ) {
       int energy = energies[eidx];
@@ -32,26 +36,28 @@ int main(int argc, char **argv) {
       BOOST_FOREACH(string particle, dbm->getDB().mPrtTsa | ad::map_keys) {
         string suf = particle + Form("_%.1f", (float)energy);
         // get fit and yield from Joey's file
-        string particle_mod = particle;
-        if ( energy == 27 ) {
-          if ( particle == "kp" ) particle_mod = "kap";
-          if ( particle == "km" ) particle_mod = "kam";
-          if ( particle == "p" ) particle_mod = "prp";
-          if ( particle == "pbar" ) particle_mod = "prm";
+        double norm_factor;
+        if ( energy != 19 ) {
+          string particle_mod = particle;
+          if ( energy == 27 ) {
+            if ( particle == "kp" ) particle_mod = "kap";
+            if ( particle == "km" ) particle_mod = "kam";
+            if ( particle == "p" ) particle_mod = "prp";
+            if ( particle == "pbar" ) particle_mod = "prm";
+          }
+          string hname = particle_mod;
+          if ( energy != 27 ) { hname += Form("_spectra_%d_MinBias", energy); }
+          else { hname += Form("_pTspectra_%dgev_MinBias", energy); }
+          TGraphErrors* dN2pipTdpTdy_Data = (TGraphErrors*)f->Get(hname.c_str());
+          dN2pipTdpTdy_Data->SetName(Form("2pipTdpTdy_Data_%s", suf.c_str()));
+          dN2pipTdpTdy_Data->Write();
+          TF1* func_dN2pipTdpTdy_Joey = dN2pipTdpTdy_Data->GetFunction("pTTBW");
+          norm_factor = func_dN2pipTdpTdy_Joey->GetParameter(3)/0.8;
+          TH1* dN2pipTdpTdy_Joey = func_dN2pipTdpTdy_Joey->GetHistogram();
+          dN2pipTdpTdy_Joey->SetName(Form("dN2pipTdpTdy_Joey_%s", suf.c_str()));
+          dN2pipTdpTdy_Joey->Scale(1/0.8); // factor 1/0.8 omitted by Joey
+          dN2pipTdpTdy_Joey->Write();
         }
-        string hname = particle_mod;
-        if ( energy != 27 ) { hname += Form("_spectra_%d_MinBias", energy); }
-        else { hname += Form("_pTspectra_%dgev_MinBias", energy); }
-        TGraphErrors* dN2pipTdpTdy_Data = (TGraphErrors*)f->Get(hname.c_str());
-        dN2pipTdpTdy_Data->SetName(Form("2pipTdpTdy_Data_%s", suf.c_str()));
-        dN2pipTdpTdy_Data->Write();
-        TF1* func_dN2pipTdpTdy_Joey = dN2pipTdpTdy_Data->GetFunction("pTTBW");
-        double norm_factor = func_dN2pipTdpTdy_Joey->GetParameter(3)/0.8;
-        std::cout << norm_factor << std::endl;
-        TH1* dN2pipTdpTdy_Joey = func_dN2pipTdpTdy_Joey->GetHistogram();
-        dN2pipTdpTdy_Joey->SetName(Form("dN2pipTdpTdy_Joey_%s", suf.c_str()));
-        dN2pipTdpTdy_Joey->Scale(1/0.8); // factor 1/0.8 omitted by Joey
-        dN2pipTdpTdy_Joey->Write();
         // reproduce TBW from PH's database
         Functions* fp = new Functions(particle, energy);
         TF1* fPt = new TF1(Form("fPt_%s", suf.c_str()),
@@ -59,6 +65,10 @@ int main(int argc, char **argv) {
         fPt->SetNpx(500);
         TH1D* dN_Pat = (TH1D*)fPt->GetHistogram();
         dN_Pat->SetName(Form("dN_Pat_%s", suf.c_str())); //dN_Pat->Write();
+        if ( energy == 19 ) {
+          norm_factor = dndy19[particle] / dN_Pat->Integral();
+        }
+        std::cout << norm_factor << std::endl;
         TH1D* dN2pipTdpTdy_Pat = (TH1D*)dN_Pat->Clone(Form("dN2pipTdpTdy_Pat_%s", suf.c_str()));
         for ( Int_t bx = 1; bx <= dN2pipTdpTdy_Pat->GetNbinsX(); ++bx) {
           Double_t pT = dN2pipTdpTdy_Pat->GetBinCenter(bx);
