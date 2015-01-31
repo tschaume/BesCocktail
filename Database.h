@@ -22,6 +22,7 @@ typedef map< string, StrNumTypeD > PrtType;
 struct Database {
   StrVecTypeD mHdr;
   PrtType mPrt;
+  PrtType mPrtTsa;
   StrVecTypeD mHgd;
   YldType mTsa;
   YldType mYld;
@@ -37,6 +38,7 @@ namespace YAML {
       Node node;
       node.push_back(db.mHdr);
       node.push_back(db.mPrt);
+      node.push_back(db.mPrtTsa);
       node.push_back(db.mHgd);
       node.push_back(db.mTsa);
       node.push_back(db.mYld);
@@ -49,12 +51,13 @@ namespace YAML {
       if (!node.IsSequence()) return false;
       db.mHdr = node[0].as<StrVecTypeD>();  // Header
       db.mPrt = node[1].as<PrtType>();  // Particle Properties
-      db.mHgd = node[2].as<StrVecTypeD>();  // Hagedorn
-      db.mTsa = node[3].as<YldType>();  // Tsallis
-      db.mYld = node[4].as<YldType>();  // Yields
-      db.mRto = node[5].as<PrtType>();  // meson to pi ratios
-      db.mCcb = node[6].as<YldType>();  // values for ccbar
-      db.mMRg = node[7].as<StrVecTypeD>();  // mee ranges for pt spectra
+      db.mPrtTsa = node[2].as<PrtType>();  // Particle Properties for Tsallis Fits
+      db.mHgd = node[3].as<StrVecTypeD>();  // Hagedorn
+      db.mTsa = node[4].as<YldType>();  // Tsallis
+      db.mYld = node[5].as<YldType>();  // Yields
+      db.mRto = node[6].as<PrtType>();  // meson to pi ratios
+      db.mCcb = node[7].as<YldType>();  // values for ccbar
+      db.mMRg = node[8].as<StrVecTypeD>();  // mee ranges for pt spectra
       return true;
     }
   };
@@ -78,7 +81,10 @@ class DatabaseManager {
     bool checkEnergy(const double& e) { return mDB.mYld.count(e); }
     void print();
 
-    double getProperty(const string& p, const string& pr) { return mDB.mPrt[p][pr]; }
+    double getProperty(const string& p, const string& pr) {
+      if ( checkParticle(p) ) { return mDB.mPrt[p][pr]; }
+      return mDB.mPrtTsa[p][pr];
+    }
     vector<double> getHdrVar(const string& var) { return mDB.mHdr[var]; }
     vector<double> getMRngLimits(const string& var) { return mDB.mMRg[var]; }
     vector<double> getHgd(const string& p, const double& e) {
