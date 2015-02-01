@@ -40,10 +40,10 @@ int main(int argc, char **argv) {
     int energies[nEnergies] = {19, 27, 39, 62};
     TFile* fin = TFile::Open("out/TsallisBlastWaveFits/tbw.root", "recreate");
     fin->cd(); TH1::AddDirectory(kFALSE);
-    map<string, double> dndy19;
-    dndy19["pim"] = 52.7915; dndy19["pip"] = dndy19["pim"];
-    dndy19["km"] = 6.0419; dndy19["kp"] = 9.3053;
-    dndy19["p"] = 11.1375; dndy19["pbar"] = 1.49875;
+    map<string, double> norm19;
+    norm19["pim"] = 498.0782; norm19["pip"] = 488.684;
+    norm19["km"] = 271.7281; norm19["kp"] = 448.9467;
+    norm19["p"] = 4969.9019; norm19["pbar"] = 577.2470;
 
     for ( int eidx = 0; eidx < nEnergies; ++eidx ) {
       int energy = energies[eidx];
@@ -87,9 +87,7 @@ int main(int argc, char **argv) {
         fPt->SetNpx(500);
         TH1D* dN_Pat = (TH1D*)fPt->GetHistogram();
         dN_Pat->SetName(Form("dN_Pat_%s", suf.c_str())); //dN_Pat->Write();
-        if ( energy == 19 ) {
-          norm_factor = 1.;//dndy19[particle] / dN_Pat->Integral();
-        }
+        if ( energy == 19 ) { norm_factor = norm19[particle]; }
         cout << norm_factor << endl;
         TH1D* dN2pipTdpTdy_Pat = (TH1D*)dN_Pat->Clone(Form("dN2pipTdpTdy_Pat_%s", suf.c_str()));
         for ( Int_t bx = 1; bx <= dN2pipTdpTdy_Pat->GetNbinsX(); ++bx) {
