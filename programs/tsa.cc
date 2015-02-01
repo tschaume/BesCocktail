@@ -36,7 +36,6 @@ void write(TGraphErrors* gr, const string type, const char* particle, const int&
 int main(int argc, char **argv) {
   try {
     DatabaseManager* dbm = DatabaseManager::Instance();
-    // TODO: 19 GeV data points
     const int nEnergies = 4;
     int energies[nEnergies] = {19, 27, 39, 62};
     TFile* fin = TFile::Open("out/TsallisBlastWaveFits/tbw.root", "recreate");
@@ -67,6 +66,11 @@ int main(int argc, char **argv) {
           else { hname += Form("_pTspectra_%dgev_MinBias", energy); }
           TGraphErrors* dN2pipTdpTdy_Data = (TGraphErrors*)f->Get(hname.c_str());
           dN2pipTdpTdy_Data->SetName(Form("2pipTdpTdy_Data_%s", suf.c_str()));
+          Double_t* aY = dN2pipTdpTdy_Data->GetY();
+          Double_t* aEY = dN2pipTdpTdy_Data->GetEY();
+          for ( int n = 0; n < dN2pipTdpTdy_Data->GetN(); ++n ) {
+            aY[n] /= 0.8; aEY[n] /= 0.8; // "Joey factor"
+          }
           dN2pipTdpTdy_Data->Write();
           write(dN2pipTdpTdy_Data, "data", particle.c_str(), energy);
           TF1* func_dN2pipTdpTdy_Joey = dN2pipTdpTdy_Data->GetFunction("pTTBW");
@@ -84,7 +88,7 @@ int main(int argc, char **argv) {
         TH1D* dN_Pat = (TH1D*)fPt->GetHistogram();
         dN_Pat->SetName(Form("dN_Pat_%s", suf.c_str())); //dN_Pat->Write();
         if ( energy == 19 ) {
-          norm_factor = dndy19[particle] / dN_Pat->Integral();
+          norm_factor = 1.;//dndy19[particle] / dN_Pat->Integral();
         }
         cout << norm_factor << endl;
         TH1D* dN2pipTdpTdy_Pat = (TH1D*)dN_Pat->Clone(Form("dN2pipTdpTdy_Pat_%s", suf.c_str()));
