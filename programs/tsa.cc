@@ -46,10 +46,12 @@ int main(int argc, char **argv) {
     norm19["p"] = 4969.9019; norm19["pbar"] = 577.2470;
 
     for ( int eidx = 0; eidx < nEnergies; ++eidx ) {
+      if (eidx < 3) continue;
       int energy = energies[eidx];
       TFile *f = TFile::Open(Form("out/TsallisBlastWaveFits/testTBW_%d.root", energy), "read");
       fin->cd();
       BOOST_FOREACH(string particle, dbm->getDB().mPrtTsa | ad::map_keys) {
+        if ( particle == "p" || particle == "pbar" ) continue;
         string suf = particle + Form("_%.1f", (float)energy);
         // get fit and yield from Joey's file
         double norm_factor;
@@ -66,18 +68,18 @@ int main(int argc, char **argv) {
           else { hname += Form("_pTspectra_%dgev_MinBias", energy); }
           TGraphErrors* dN2pipTdpTdy_Data = (TGraphErrors*)f->Get(hname.c_str());
           dN2pipTdpTdy_Data->SetName(Form("2pipTdpTdy_Data_%s", suf.c_str()));
-          Double_t* aY = dN2pipTdpTdy_Data->GetY();
-          Double_t* aEY = dN2pipTdpTdy_Data->GetEY();
-          for ( int n = 0; n < dN2pipTdpTdy_Data->GetN(); ++n ) {
-            aY[n] /= 0.8; aEY[n] /= 0.8; // "Joey factor"
-          }
+          //Double_t* aY = dN2pipTdpTdy_Data->GetY();
+          //Double_t* aEY = dN2pipTdpTdy_Data->GetEY();
+          //for ( int n = 0; n < dN2pipTdpTdy_Data->GetN(); ++n ) {
+          //  aY[n] /= 0.8; aEY[n] /= 0.8; // "Joey factor"
+          //}
           dN2pipTdpTdy_Data->Write();
           write(dN2pipTdpTdy_Data, "data", particle.c_str(), energy);
           TF1* func_dN2pipTdpTdy_Joey = dN2pipTdpTdy_Data->GetFunction("pTTBW");
-          norm_factor = func_dN2pipTdpTdy_Joey->GetParameter(3)/0.8;
+          norm_factor = func_dN2pipTdpTdy_Joey->GetParameter(3);///0.8;
           TH1* dN2pipTdpTdy_Joey = func_dN2pipTdpTdy_Joey->GetHistogram();
           dN2pipTdpTdy_Joey->SetName(Form("dN2pipTdpTdy_Joey_%s", suf.c_str()));
-          dN2pipTdpTdy_Joey->Scale(1/0.8); // factor 1/0.8 omitted by Joey
+          //dN2pipTdpTdy_Joey->Scale(1/0.8); // factor 1/0.8 omitted by Joey
           dN2pipTdpTdy_Joey->Write();
         }
         // reproduce TBW from PH's database
